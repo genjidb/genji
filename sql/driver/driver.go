@@ -64,6 +64,14 @@ type connector struct {
 	closeOnce sync.Once
 }
 
+// NewConnector constructs a new connector with a db.
+func NewConnector(db *genji.DB) driver.Connector {
+	return &connector{
+		driver: &sqlDriver{},
+		db:     db,
+	}
+}
+
 func (c *connector) Connect(ctx context.Context) (driver.Conn, error) {
 	return &conn{db: c.db}, nil
 }
