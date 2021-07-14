@@ -143,7 +143,7 @@ func RequireDocEqual(t testing.TB, d1, d2 document.Document) {
 
 	l := document.NewDocumentValue(d1)
 	r := document.NewDocumentValue(d2)
-	ok, err := l.IsEqual(r)
+	ok, err := document.IsEqual(l, r)
 	require.NoError(t, err)
 	if !ok {
 		t.Fatal(cmp.Diff(transformDoc(d1), transformDoc(d2)))

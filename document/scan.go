@@ -265,21 +265,21 @@ func scanValue(v Value, ref reflect.Value) error {
 
 	switch ref.Kind() {
 	case reflect.String:
-		v, err := v.CastAsText()
+		v, err := CastAsText(v)
 		if err != nil {
 			return err
 		}
 		ref.SetString(string(v.V().(string)))
 		return nil
 	case reflect.Bool:
-		v, err := v.CastAsBool()
+		v, err := CastAsBool(v)
 		if err != nil {
 			return err
 		}
 		ref.SetBool(v.V().(bool))
 		return nil
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		v, err := v.CastAsInteger()
+		v, err := CastAsInteger(v)
 		if err != nil {
 			return err
 		}
@@ -290,14 +290,14 @@ func scanValue(v Value, ref reflect.Value) error {
 		ref.SetUint(uint64(x))
 		return nil
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		v, err := v.CastAsInteger()
+		v, err := CastAsInteger(v)
 		if err != nil {
 			return err
 		}
 		ref.SetInt(v.V().(int64))
 		return nil
 	case reflect.Float32, reflect.Float64:
-		v, err := v.CastAsDouble()
+		v, err := CastAsDouble(v)
 		if err != nil {
 			return err
 		}
@@ -341,7 +341,7 @@ func scanValue(v Value, ref reflect.Value) error {
 
 	switch ref.Kind() {
 	case reflect.Struct:
-		v, err := v.CastAsDocument()
+		v, err := CastAsDocument(v)
 		if err != nil {
 			return err
 		}
@@ -359,7 +359,7 @@ func scanValue(v Value, ref reflect.Value) error {
 			}
 			return nil
 		}
-		v, err := v.CastAsArray()
+		v, err := CastAsArray(v)
 		if err != nil {
 			return err
 		}
@@ -373,14 +373,14 @@ func scanValue(v Value, ref reflect.Value) error {
 			reflect.Copy(ref, reflect.ValueOf(v.V()))
 			return nil
 		}
-		v, err := v.CastAsArray()
+		v, err := CastAsArray(v)
 		if err != nil {
 			return err
 		}
 
 		return sliceScan(v.V().(Array), ref.Addr())
 	case reflect.Map:
-		v, err := v.CastAsDocument()
+		v, err := CastAsDocument(v)
 		if err != nil {
 			return err
 		}
@@ -389,11 +389,6 @@ func scanValue(v Value, ref reflect.Value) error {
 	}
 
 	return &ErrUnsupportedType{ref, "Invalid type"}
-}
-
-// Scan v into t.
-func (v Value) Scan(t interface{}) error {
-	return scanValue(v, reflect.ValueOf(t))
 }
 
 // ScanDocument scans a document into dest which must be either a struct pointer, a map or a map pointer.

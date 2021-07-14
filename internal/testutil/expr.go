@@ -16,42 +16,42 @@ import (
 
 // BlobValue creates a literal value of type Blob.
 func BlobValue(v []byte) expr.LiteralValue {
-	return expr.LiteralValue(document.NewBlobValue(v))
+	return expr.LiteralValue{Value: document.NewBlobValue(v)}
 }
 
 // TextValue creates a literal value of type Text.
 func TextValue(v string) expr.LiteralValue {
-	return expr.LiteralValue(document.NewTextValue(v))
+	return expr.LiteralValue{Value: document.NewTextValue(v)}
 }
 
 // BoolValue creates a literal value of type Bool.
 func BoolValue(v bool) expr.LiteralValue {
-	return expr.LiteralValue(document.NewBoolValue(v))
+	return expr.LiteralValue{Value: document.NewBoolValue(v)}
 }
 
 // IntegerValue creates a literal value of type Integer.
 func IntegerValue(v int64) expr.LiteralValue {
-	return expr.LiteralValue(document.NewIntegerValue(v))
+	return expr.LiteralValue{Value: document.NewIntegerValue(v)}
 }
 
 // DoubleValue creates a literal value of type Double.
 func DoubleValue(v float64) expr.LiteralValue {
-	return expr.LiteralValue(document.NewDoubleValue(v))
+	return expr.LiteralValue{Value: document.NewDoubleValue(v)}
 }
 
 // NullValue creates a literal value of type Null.
 func NullValue() expr.LiteralValue {
-	return expr.LiteralValue(document.NewNullValue())
+	return expr.LiteralValue{Value: document.NewNullValue()}
 }
 
 // DocumentValue creates a literal value of type Document.
 func DocumentValue(d document.Document) expr.LiteralValue {
-	return expr.LiteralValue(document.NewDocumentValue(d))
+	return expr.LiteralValue{Value: document.NewDocumentValue(d)}
 }
 
 // ArrayValue creates a literal value of type Array.
 func ArrayValue(a document.Array) expr.LiteralValue {
-	return expr.LiteralValue(document.NewArrayValue(a))
+	return expr.LiteralValue{Value: document.NewArrayValue(a)}
 }
 
 func ExprList(t testing.TB, s string) expr.LiteralExprList {

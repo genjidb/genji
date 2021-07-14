@@ -111,9 +111,9 @@ func TestPrecalculateExprRule(t *testing.T) {
 		{
 			"constant sub-expr: a IN [1, 2] -> a IN array([1, 2])",
 			expr.In(expr.Path{document.PathFragment{FieldName: "a"}}, expr.LiteralExprList{testutil.IntegerValue(1), testutil.IntegerValue(2)}),
-			expr.In(expr.Path{document.PathFragment{FieldName: "a"}}, expr.LiteralValue(document.NewArrayValue(document.NewValueBuffer().
+			expr.In(expr.Path{document.PathFragment{FieldName: "a"}}, expr.LiteralValue{Value: document.NewArrayValue(document.NewValueBuffer().
 				Append(document.NewIntegerValue(1)).
-				Append(document.NewIntegerValue(2))))),
+				Append(document.NewIntegerValue(2)))}),
 		},
 		{
 			"non-constant expr list: [a, 1 - 40] -> [a, -39]",
@@ -132,9 +132,9 @@ func TestPrecalculateExprRule(t *testing.T) {
 				testutil.IntegerValue(3),
 				expr.Sub(testutil.IntegerValue(1), testutil.DoubleValue(40)),
 			},
-			expr.LiteralValue(document.NewArrayValue(document.NewValueBuffer().
+			expr.LiteralValue{Value: document.NewArrayValue(document.NewValueBuffer().
 				Append(document.NewIntegerValue(3)).
-				Append(document.NewDoubleValue(-39)))),
+				Append(document.NewDoubleValue(-39)))},
 		},
 		{
 			`non-constant kvpair: {"a": d, "b": 1 - 40} -> {"a": 3, "b": -39}`,
@@ -153,10 +153,10 @@ func TestPrecalculateExprRule(t *testing.T) {
 				{K: "a", V: testutil.IntegerValue(3)},
 				{K: "b", V: expr.Sub(testutil.IntegerValue(1), testutil.DoubleValue(40))},
 			}},
-			expr.LiteralValue(document.NewDocumentValue(document.NewFieldBuffer().
+			expr.LiteralValue{Value: document.NewDocumentValue(document.NewFieldBuffer().
 				Add("a", document.NewIntegerValue(3)).
 				Add("b", document.NewDoubleValue(-39)),
-			)),
+			)},
 		},
 	}
 

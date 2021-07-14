@@ -145,7 +145,7 @@ func (c CastFunc) Eval(env *environment.Environment) (document.Value, error) {
 		return v, err
 	}
 
-	return v.CastAs(c.CastAs)
+	return document.CastAs(v, c.CastAs)
 }
 
 // IsEqual compares this expression with the other expression and returns
@@ -190,7 +190,7 @@ type CountFunc struct {
 func (c *CountFunc) Eval(env *environment.Environment) (document.Value, error) {
 	d, ok := env.GetDocument()
 	if !ok {
-		return document.Value{}, errors.New("misuse of aggregation function COUNT()")
+		return nil, errors.New("misuse of aggregation function COUNT()")
 	}
 
 	return d.GetByField(c.String())
@@ -274,7 +274,7 @@ type MinFunc struct {
 func (m *MinFunc) Eval(env *environment.Environment) (document.Value, error) {
 	d, ok := env.GetDocument()
 	if !ok {
-		return document.Value{}, errors.New("misuse of aggregation function MIN()")
+		return nil, errors.New("misuse of aggregation function MIN()")
 	}
 
 	return d.GetByField(m.String())
@@ -327,13 +327,13 @@ func (m *MinAggregator) Aggregate(env *environment.Environment) error {
 		return nil
 	}
 
-	if m.Min.Type() == 0 {
+	if m.Min == nil {
 		m.Min = v
 		return nil
 	}
 
 	if m.Min.Type() == v.Type() || m.Min.Type().IsNumber() && v.Type().IsNumber() {
-		ok, err := m.Min.IsGreaterThan(v)
+		ok, err := document.IsGreaterThan(m.Min, v)
 		if err != nil {
 			return err
 		}
@@ -353,7 +353,7 @@ func (m *MinAggregator) Aggregate(env *environment.Environment) error {
 
 // Eval return the minimum value.
 func (m *MinAggregator) Eval(env *environment.Environment) (document.Value, error) {
-	if m.Min.Type() == 0 {
+	if m.Min == nil {
 		return document.NewNullValue(), nil
 	}
 	return m.Min, nil
@@ -372,7 +372,7 @@ type MaxFunc struct {
 func (m *MaxFunc) Eval(env *environment.Environment) (document.Value, error) {
 	d, ok := env.GetDocument()
 	if !ok {
-		return document.Value{}, errors.New("misuse of aggregation function MAX()")
+		return nil, errors.New("misuse of aggregation function MAX()")
 	}
 
 	return d.GetByField(m.String())
@@ -425,13 +425,13 @@ func (m *MaxAggregator) Aggregate(env *environment.Environment) error {
 		return nil
 	}
 
-	if m.Max.Type() == 0 {
+	if m.Max == nil {
 		m.Max = v
 		return nil
 	}
 
 	if m.Max.Type() == v.Type() || m.Max.Type().IsNumber() && v.Type().IsNumber() {
-		ok, err := m.Max.IsLesserThan(v)
+		ok, err := document.IsLesserThan(m.Max, v)
 		if err != nil {
 			return err
 		}
@@ -451,7 +451,7 @@ func (m *MaxAggregator) Aggregate(env *environment.Environment) error {
 
 // Eval return the maximum value.
 func (m *MaxAggregator) Eval(env *environment.Environment) (document.Value, error) {
-	if m.Max.Type() == 0 {
+	if m.Max == nil {
 		return document.NewNullValue(), nil
 	}
 
@@ -471,7 +471,7 @@ type SumFunc struct {
 func (s *SumFunc) Eval(env *environment.Environment) (document.Value, error) {
 	d, ok := env.GetDocument()
 	if !ok {
-		return document.Value{}, errors.New("misuse of aggregation function SUM()")
+		return nil, errors.New("misuse of aggregation function SUM()")
 	}
 
 	return d.GetByField(s.String())
@@ -581,7 +581,7 @@ type AvgFunc struct {
 func (s *AvgFunc) Eval(env *environment.Environment) (document.Value, error) {
 	d, ok := env.GetDocument()
 	if !ok {
-		return document.Value{}, errors.New("misuse of aggregation function AVG()")
+		return nil, errors.New("misuse of aggregation function AVG()")
 	}
 
 	return d.GetByField(s.String())

@@ -220,27 +220,27 @@ func (p *Parser) parseUnaryExpr(allowed ...scanner.Token) (expr.Expr, error) {
 		p.orderedParams++
 		return expr.PositionalParam(p.orderedParams), nil
 	case scanner.STRING:
-		return expr.LiteralValue(document.NewTextValue(lit)), nil
+		return expr.LiteralValue{Value: document.NewTextValue(lit)}, nil
 	case scanner.NUMBER:
 		v, err := strconv.ParseFloat(lit, 64)
 		if err != nil {
 			return nil, &ParseError{Message: "unable to parse number", Pos: pos}
 		}
-		return expr.LiteralValue(document.NewDoubleValue(v)), nil
+		return expr.LiteralValue{Value: document.NewDoubleValue(v)}, nil
 	case scanner.INTEGER:
 		v, err := strconv.ParseInt(lit, 10, 64)
 		if err != nil {
 			// The literal may be too large to fit into an int64, parse as Float64
 			if v, err := strconv.ParseFloat(lit, 64); err == nil {
-				return expr.LiteralValue(document.NewDoubleValue(v)), nil
+				return expr.LiteralValue{Value: document.NewDoubleValue(v)}, nil
 			}
 			return nil, &ParseError{Message: "unable to parse integer", Pos: pos}
 		}
-		return expr.LiteralValue(document.NewIntegerValue(v)), nil
+		return expr.LiteralValue{Value: document.NewIntegerValue(v)}, nil
 	case scanner.TRUE, scanner.FALSE:
-		return expr.LiteralValue(document.NewBoolValue(tok == scanner.TRUE)), nil
+		return expr.LiteralValue{Value: document.NewBoolValue(tok == scanner.TRUE)}, nil
 	case scanner.NULL:
-		return expr.LiteralValue(document.NewNullValue()), nil
+		return expr.LiteralValue{Value: document.NewNullValue()}, nil
 	case scanner.LBRACKET:
 		p.Unscan()
 		e, err := p.ParseDocument()

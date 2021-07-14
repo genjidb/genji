@@ -233,17 +233,17 @@ func TestCompare(t *testing.T) {
 
 			switch test.op {
 			case "=":
-				ok, err = a.IsEqual(b)
+				ok, err = document.IsEqual(a, b)
 			case "!=":
-				ok, err = a.IsNotEqual(b)
+				ok, err = document.IsNotEqual(a, b)
 			case ">":
-				ok, err = a.IsGreaterThan(b)
+				ok, err = document.IsGreaterThan(a, b)
 			case ">=":
-				ok, err = a.IsGreaterThanOrEqual(b)
+				ok, err = document.IsGreaterThanOrEqual(a, b)
 			case "<":
-				ok, err = a.IsLesserThan(b)
+				ok, err = document.IsLesserThan(a, b)
 			case "<=":
-				ok, err = a.IsLesserThanOrEqual(b)
+				ok, err = document.IsLesserThanOrEqual(a, b)
 			}
 			require.NoError(t, err)
 			require.Equal(t, test.ok, ok)

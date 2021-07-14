@@ -118,7 +118,7 @@ func TestValueAdd(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			res, err := test.v.Add(test.u)
+			res, err := document.Add(test.v, test.u)
 			if test.fails {
 				require.Error(t, err)
 			} else {
@@ -154,7 +154,7 @@ func TestValueSub(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			res, err := test.v.Sub(test.u)
+			res, err := document.Sub(test.v, test.u)
 			if test.fails {
 				require.Error(t, err)
 			} else {
@@ -188,7 +188,7 @@ func TestValueMult(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			res, err := test.v.Mul(test.u)
+			res, err := document.Mul(test.v, test.u)
 			if test.fails {
 				require.Error(t, err)
 			} else {
@@ -223,7 +223,7 @@ func TestValueDiv(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			res, err := test.v.Div(test.u)
+			res, err := document.Div(test.v, test.u)
 			if test.fails {
 				require.Error(t, err)
 			} else {
@@ -260,7 +260,7 @@ func TestValueMod(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			res, err := test.v.Mod(test.u)
+			res, err := document.Mod(test.v, test.u)
 			if test.fails {
 				require.Error(t, err)
 			} else {
@@ -294,7 +294,7 @@ func TestValueBitwiseAnd(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			res, err := test.v.BitwiseAnd(test.u)
+			res, err := document.BitwiseAnd(test.v, test.u)
 			if test.fails {
 				require.Error(t, err)
 			} else {
@@ -327,7 +327,7 @@ func TestValueBitwiseOr(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			res, err := test.v.BitwiseOr(test.u)
+			res, err := document.BitwiseOr(test.v, test.u)
 			if test.fails {
 				require.Error(t, err)
 			} else {
@@ -359,7 +359,7 @@ func TestValueBitwiseXor(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			res, err := test.v.BitwiseXor(test.u)
+			res, err := document.BitwiseXor(test.v, test.u)
 			if test.fails {
 				require.Error(t, err)
 			} else {

@@ -555,7 +555,7 @@ func TestIndexAscendGreaterThan(t *testing.T) {
 				// composite indexes can have empty pivot values to iterate on the whole indexed data
 				{name: "index=[any, untyped], vals=[int, int], pivot=[nil,nil]",
 					indexTypes: []document.ValueType{document.AnyType, document.AnyType},
-					pivot:      values(document.Value{}, document.Value{}),
+					pivot:      values(nil, nil),
 					val: func(i int) []document.Value {
 						return values(document.NewIntegerValue(int64(i)), document.NewIntegerValue(int64(i+1)))
 					},
@@ -603,7 +603,7 @@ func TestIndexAscendGreaterThan(t *testing.T) {
 				},
 				{name: "index=[any, untyped], vals=[int, int], noise=[blob, blob], pivot=[0, int, nil]",
 					indexTypes: []document.ValueType{0, 0, 0},
-					pivot:      values(document.NewIntegerValue(0), document.NewEmptyValue(document.IntegerValue), document.NewIntegerValue(0), document.Value{}),
+					pivot:      values(document.NewIntegerValue(0), document.NewEmptyValue(document.IntegerValue), document.NewIntegerValue(0), nil),
 					val: func(i int) []document.Value {
 						return values(document.NewIntegerValue(int64(i)), document.NewIntegerValue(int64(i+1)), document.NewIntegerValue(int64(i+1)))
 					},
@@ -1251,7 +1251,7 @@ func TestIndexDescendLessOrEqual(t *testing.T) {
 				// composite indexes can have empty pivot values to iterate on the whole indexed data
 				{name: "index=[any, untyped], vals=[int, int], pivot=[nil,nil]",
 					indexTypes: []document.ValueType{document.AnyType, document.AnyType},
-					pivot:      values(document.Value{}, document.Value{}),
+					pivot:      values(nil, nil),
 					val: func(i int) []document.Value {
 						return values(document.NewIntegerValue(int64(i)), document.NewIntegerValue(int64(i+1)))
 					},

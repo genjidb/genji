@@ -503,7 +503,7 @@ func TestNewFromStruct(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.Equal(t, 3, count)
-		v, err = a.GetByIndex(10)
+		_, err = a.GetByIndex(10)
 		require.Equal(t, err, document.ErrFieldNotFound)
 		v, err = a.GetByIndex(1)
 		require.NoError(t, err)
@@ -512,7 +512,7 @@ func TestNewFromStruct(t *testing.T) {
 		v, err = doc.GetByField("bb")
 		require.NoError(t, err)
 		var timeStr string
-		require.NoError(t, v.Scan(&timeStr))
+		require.NoError(t, document.ScanValue(v, &timeStr))
 		parsedTime, err := time.Parse(time.RFC3339Nano, timeStr)
 		require.NoError(t, err)
 		require.Equal(t, u.BB, parsedTime)
@@ -583,7 +583,7 @@ func (f *foo) GetByField(field string) (document.Value, error) {
 		return document.NewDoubleValue(f.D), nil
 	}
 
-	return document.Value{}, errors.New("unknown field")
+	return nil, errors.New("unknown field")
 }
 
 func TestPath(t *testing.T) {

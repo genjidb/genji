@@ -63,7 +63,7 @@ func (w Wildcard) String() string {
 }
 
 func (w Wildcard) Eval(env *environment.Environment) (document.Value, error) {
-	return document.Value{}, errors.New("no table specified")
+	return nil, errors.New("no table specified")
 }
 
 // Iterate call the document iterate method.

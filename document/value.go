@@ -88,31 +88,34 @@ func (t ValueType) IsAny() bool {
 	return t == AnyType
 }
 
-type Val interface {
-	tp() ValueType
-	v() interface{}
-	IsZeroValue() (bool, error)
-	Append([]byte) ([]byte, error)
+type Value interface {
+	Type() ValueType
+	V() interface{}
+	// TODO(asdine): Remove the following methods from
+	// this interface and use type inference instead.
 	MarshalJSON() ([]byte, error)
-	UnmarshalJSON([]byte) error
+	MarshalBinary() ([]byte, error)
+	String() string
 }
 
 // A Value stores encoded data alongside its type.
-type Value struct {
+type value struct {
 	tp ValueType
 	v  interface{}
 }
 
+var _ Value = &value{}
+
 // NewNullValue returns a Null value.
 func NewNullValue() Value {
-	return Value{
+	return &value{
 		tp: NullValue,
 	}
 }
 
 // NewBoolValue encodes x and returns a value.
 func NewBoolValue(x bool) Value {
-	return Value{
+	return &value{
 		tp: BoolValue,
 		v:  x,
 	}
@@ -121,7 +124,7 @@ func NewBoolValue(x bool) Value {
 // NewIntegerValue encodes x and returns a value whose type depends on the
 // magnitude of x.
 func NewIntegerValue(x int64) Value {
-	return Value{
+	return &value{
 		tp: IntegerValue,
 		v:  int64(x),
 	}
@@ -129,7 +132,7 @@ func NewIntegerValue(x int64) Value {
 
 // NewDoubleValue encodes x and returns a value.
 func NewDoubleValue(x float64) Value {
-	return Value{
+	return &value{
 		tp: DoubleValue,
 		v:  x,
 	}
@@ -137,7 +140,7 @@ func NewDoubleValue(x float64) Value {
 
 // NewBlobValue encodes x and returns a value.
 func NewBlobValue(x []byte) Value {
-	return Value{
+	return &value{
 		tp: BlobValue,
 		v:  x,
 	}
@@ -145,7 +148,7 @@ func NewBlobValue(x []byte) Value {
 
 // NewTextValue encodes x and returns a value.
 func NewTextValue(x string) Value {
-	return Value{
+	return &value{
 		tp: TextValue,
 		v:  x,
 	}
@@ -153,7 +156,7 @@ func NewTextValue(x string) Value {
 
 // NewArrayValue returns a value of type Array.
 func NewArrayValue(a Array) Value {
-	return Value{
+	return &value{
 		tp: ArrayValue,
 		v:  a,
 	}
@@ -161,7 +164,7 @@ func NewArrayValue(a Array) Value {
 
 // NewDocumentValue returns a value of type Document.
 func NewDocumentValue(d Document) Value {
-	return Value{
+	return &value{
 		tp: DocumentValue,
 		v:  d,
 	}
@@ -170,62 +173,62 @@ func NewDocumentValue(d Document) Value {
 // NewEmptyValue creates an empty value with the given type.
 // V() always returns nil.
 func NewEmptyValue(t ValueType) Value {
-	return Value{
+	return &value{
 		tp: t,
 	}
 }
 
 // NewValueWith creates a value with the given type and value.
 func NewValueWith(t ValueType, v interface{}) Value {
-	return Value{
+	return &value{
 		tp: t,
 		v:  v,
 	}
 }
 
-func (v Value) V() interface{} {
+func (v *value) V() interface{} {
 	return v.v
 }
 
-func (v Value) Type() ValueType {
+func (v *value) Type() ValueType {
 	return v.tp
 }
 
 // IsTruthy returns whether v is not equal to the zero value of its type.
-func (v Value) IsTruthy() (bool, error) {
-	if v.tp == NullValue {
+func IsTruthy(v Value) (bool, error) {
+	if v.Type() == NullValue {
 		return false, nil
 	}
 
-	b, err := v.IsZeroValue()
+	b, err := IsZeroValue(v)
 	return !b, err
 }
 
 // IsZeroValue indicates if the value data is the zero value for the value type.
 // This function doesn't perform any allocation.
-func (v Value) IsZeroValue() (bool, error) {
-	switch v.tp {
+func IsZeroValue(v Value) (bool, error) {
+	switch v.Type() {
 	case BoolValue:
-		return v.v == false, nil
+		return v.V() == false, nil
 	case IntegerValue:
-		return v.v == int64(0), nil
+		return v.V() == int64(0), nil
 	case DoubleValue:
-		return v.v == float64(0), nil
+		return v.V() == float64(0), nil
 	case BlobValue:
-		return v.v == nil, nil
+		return v.V() == nil, nil
 	case TextValue:
-		return v.v == "", nil
+		return v.V() == "", nil
 	case ArrayValue:
 		// The zero value of an array is an empty array.
 		// Thus, if GetByIndex(0) returns the ErrValueNotFound
 		// it means that the array is empty.
-		_, err := v.v.(Array).GetByIndex(0)
+		_, err := v.V().(Array).GetByIndex(0)
 		if err == ErrValueNotFound {
 			return true, nil
 		}
 		return false, err
 	case DocumentValue:
-		err := v.v.(Document).Iterate(func(_ string, _ Value) error {
+		err := v.V().(Document).Iterate(func(_ string, _ Value) error {
 			// We return an error in the first iteration to stop it.
 			return errStop
 		})
@@ -247,7 +250,7 @@ func (v Value) IsZeroValue() (bool, error) {
 }
 
 // MarshalJSON implements the json.Marshaler interface.
-func (v Value) MarshalJSON() ([]byte, error) {
+func (v *value) MarshalJSON() ([]byte, error) {
 	switch v.tp {
 	case NullValue:
 		return []byte("null"), nil
@@ -289,7 +292,7 @@ func (v Value) MarshalJSON() ([]byte, error) {
 }
 
 // String returns a string representation of the value. It implements the fmt.Stringer interface.
-func (v Value) String() string {
+func (v *value) String() string {
 	switch v.tp {
 	case NullValue:
 		return "NULL"
@@ -305,7 +308,7 @@ func (v Value) String() string {
 
 // Append appends to buf a binary representation of v.
 // The encoded value doesn't include type information.
-func (v Value) Append(buf []byte) ([]byte, error) {
+func (v *value) Append(buf []byte) ([]byte, error) {
 	switch v.tp {
 	case BlobValue:
 		return append(buf, v.v.([]byte)...), nil
@@ -340,74 +343,74 @@ func (v Value) Append(buf []byte) ([]byte, error) {
 
 // MarshalBinary returns a binary representation of v.
 // The encoded value doesn't include type information.
-func (v Value) MarshalBinary() ([]byte, error) {
+func (v *value) MarshalBinary() ([]byte, error) {
 	return v.Append(nil)
 }
 
 // Add u to v and return the result.
 // Only numeric values and booleans can be added together.
-func (v Value) Add(u Value) (res Value, err error) {
-	return calculateValues(v, u, '+')
+func Add(v1, v2 Value) (res Value, err error) {
+	return calculateValues(v1, v2, '+')
 }
 
 // Sub calculates v - u and returns the result.
 // Only numeric values and booleans can be calculated together.
-func (v Value) Sub(u Value) (res Value, err error) {
-	return calculateValues(v, u, '-')
+func Sub(v1, v2 Value) (res Value, err error) {
+	return calculateValues(v1, v2, '-')
 }
 
 // Mul calculates v * u and returns the result.
 // Only numeric values and booleans can be calculated together.
-func (v Value) Mul(u Value) (res Value, err error) {
-	return calculateValues(v, u, '*')
+func Mul(v1, v2 Value) (res Value, err error) {
+	return calculateValues(v1, v2, '*')
 }
 
 // Div calculates v / u and returns the result.
 // Only numeric values and booleans can be calculated together.
 // If both v and u are integers, the result will be an integer.
-func (v Value) Div(u Value) (res Value, err error) {
-	return calculateValues(v, u, '/')
+func Div(v1, v2 Value) (res Value, err error) {
+	return calculateValues(v1, v2, '/')
 }
 
 // Mod calculates v / u and returns the result.
 // Only numeric values and booleans can be calculated together.
 // If both v and u are integers, the result will be an integer.
-func (v Value) Mod(u Value) (res Value, err error) {
-	return calculateValues(v, u, '%')
+func Mod(v1, v2 Value) (res Value, err error) {
+	return calculateValues(v1, v2, '%')
 }
 
 // BitwiseAnd calculates v & u and returns the result.
 // Only numeric values and booleans can be calculated together.
 // If both v and u are integers, the result will be an integer.
-func (v Value) BitwiseAnd(u Value) (res Value, err error) {
-	return calculateValues(v, u, '&')
+func BitwiseAnd(v1, v2 Value) (res Value, err error) {
+	return calculateValues(v1, v2, '&')
 }
 
 // BitwiseOr calculates v | u and returns the result.
 // Only numeric values and booleans can be calculated together.
 // If both v and u are integers, the result will be an integer.
-func (v Value) BitwiseOr(u Value) (res Value, err error) {
-	return calculateValues(v, u, '|')
+func BitwiseOr(v1, v2 Value) (res Value, err error) {
+	return calculateValues(v1, v2, '|')
 }
 
 // BitwiseXor calculates v ^ u and returns the result.
 // Only numeric values and booleans can be calculated together.
 // If both v and u are integers, the result will be an integer.
-func (v Value) BitwiseXor(u Value) (res Value, err error) {
-	return calculateValues(v, u, '^')
+func BitwiseXor(v1, v2 Value) (res Value, err error) {
+	return calculateValues(v1, v2, '^')
 }
 
 func calculateValues(a, b Value, operator byte) (res Value, err error) {
-	if a.tp == NullValue || b.tp == NullValue {
+	if a.Type() == NullValue || b.Type() == NullValue {
 		return NewNullValue(), nil
 	}
 
-	if a.tp == BoolValue || b.tp == BoolValue {
+	if a.Type() == BoolValue || b.Type() == BoolValue {
 		return NewNullValue(), nil
 	}
 
-	if a.tp.IsNumber() && b.tp.IsNumber() {
-		if a.tp == DoubleValue || b.tp == DoubleValue {
+	if a.Type().IsNumber() && b.Type().IsNumber() {
+		if a.Type() == DoubleValue || b.Type() == DoubleValue {
 			return calculateFloats(a, b, operator)
 		}
 
@@ -420,17 +423,17 @@ func calculateValues(a, b Value, operator byte) (res Value, err error) {
 func calculateIntegers(a, b Value, operator byte) (res Value, err error) {
 	var xa, xb int64
 
-	ia, err := a.CastAsInteger()
+	ia, err := CastAsInteger(a)
 	if err != nil {
 		return NewNullValue(), nil
 	}
-	xa = ia.v.(int64)
+	xa = ia.V().(int64)
 
-	ib, err := b.CastAsInteger()
+	ib, err := CastAsInteger(b)
 	if err != nil {
 		return NewNullValue(), nil
 	}
-	xb = ib.v.(int64)
+	xb = ib.V().(int64)
 
 	var xr int64
 
@@ -487,17 +490,17 @@ func calculateIntegers(a, b Value, operator byte) (res Value, err error) {
 func calculateFloats(a, b Value, operator byte) (res Value, err error) {
 	var xa, xb float64
 
-	fa, err := a.CastAsDouble()
+	fa, err := CastAsDouble(a)
 	if err != nil {
 		return NewNullValue(), nil
 	}
-	xa = fa.v.(float64)
+	xa = fa.V().(float64)
 
-	fb, err := b.CastAsDouble()
+	fb, err := CastAsDouble(b)
 	if err != nil {
 		return NewNullValue(), nil
 	}
-	xb = fb.v.(float64)
+	xb = fb.V().(float64)
 
 	switch operator {
 	case '+':
@@ -541,7 +544,7 @@ func parseJSONValue(dataType jsonparser.ValueType, data []byte) (v Value, err er
 	case jsonparser.Boolean:
 		b, err := jsonparser.ParseBoolean(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewBoolValue(b), nil
 	case jsonparser.Number:
@@ -550,7 +553,7 @@ func parseJSONValue(dataType jsonparser.ValueType, data []byte) (v Value, err er
 			// if it's too big to fit in an int64, let's try parsing this as a floating point number
 			f, err := jsonparser.ParseFloat(data)
 			if err != nil {
-				return Value{}, err
+				return nil, err
 			}
 
 			return NewDoubleValue(f), nil
@@ -560,14 +563,14 @@ func parseJSONValue(dataType jsonparser.ValueType, data []byte) (v Value, err er
 	case jsonparser.String:
 		s, err := jsonparser.ParseString(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewTextValue(s), nil
 	case jsonparser.Array:
 		buf := NewValueBuffer()
 		err := buf.UnmarshalJSON(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 
 		return NewArrayValue(buf), nil
@@ -575,12 +578,12 @@ func parseJSONValue(dataType jsonparser.ValueType, data []byte) (v Value, err er
 		buf := NewFieldBuffer()
 		err = buf.UnmarshalJSON(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 
 		return NewDocumentValue(buf), nil
 	default:
 	}
 
-	return Value{}, nil
+	return nil, nil
 }

@@ -56,7 +56,7 @@ func TestParserCreateTable(t *testing.T) {
 				Info: database.TableInfo{
 					TableName: "test",
 					FieldConstraints: []*database.FieldConstraint{
-						{Path: document.Path(testutil.ParsePath(t, "foo")), DefaultValue: expr.Constraint(expr.LiteralValue(document.NewTextValue("10")))},
+						{Path: document.Path(testutil.ParsePath(t, "foo")), DefaultValue: expr.Constraint(expr.LiteralValue{Value: document.NewTextValue("10")})},
 					},
 				},
 			}, false},

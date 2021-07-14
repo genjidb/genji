@@ -39,10 +39,10 @@ func (j jsonEncodedDocument) Iterate(fn func(field string, value Value) error) e
 func (j jsonEncodedDocument) GetByField(field string) (Value, error) {
 	v, dt, _, err := jsonparser.Get(j.data, field)
 	if dt == jsonparser.NotExist {
-		return Value{}, ErrFieldNotFound
+		return nil, ErrFieldNotFound
 	}
 	if err != nil {
-		return Value{}, err
+		return nil, err
 	}
 
 	return parseJSONValue(dt, v)
@@ -88,7 +88,7 @@ func (m mapDocument) GetByField(field string) (Value, error) {
 	M := reflect.Value(m)
 	v := M.MapIndex(reflect.ValueOf(field))
 	if v == (reflect.Value{}) {
-		return Value{}, ErrFieldNotFound
+		return nil, ErrFieldNotFound
 	}
 	return NewValue(v.Interface())
 }
@@ -202,7 +202,7 @@ func NewValue(x interface{}) (Value, error) {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		x := v.Uint()
 		if x > math.MaxInt64 {
-			return Value{}, stringutil.Errorf("cannot convert unsigned integer struct field to int64: %d out of range", x)
+			return nil, stringutil.Errorf("cannot convert unsigned integer struct field to int64: %d out of range", x)
 		}
 		return NewIntegerValue(int64(x)), nil
 	case reflect.Float32, reflect.Float64:
@@ -217,7 +217,7 @@ func NewValue(x interface{}) (Value, error) {
 	case reflect.Struct:
 		doc, err := NewFromStruct(x)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewDocumentValue(doc), nil
 	case reflect.Array:
@@ -233,12 +233,12 @@ func NewValue(x interface{}) (Value, error) {
 	case reflect.Map:
 		doc, err := NewFromMap(x)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewDocumentValue(doc), nil
 	}
 
-	return Value{}, &ErrUnsupportedType{x, ""}
+	return nil, &ErrUnsupportedType{x, ""}
 }
 
 type sliceArray struct {
@@ -272,12 +272,12 @@ func (s sliceArray) Iterate(fn func(i int, v Value) error) error {
 
 func (s sliceArray) GetByIndex(i int) (Value, error) {
 	if i >= s.ref.Len() {
-		return Value{}, ErrFieldNotFound
+		return nil, ErrFieldNotFound
 	}
 
 	v := s.ref.Index(i)
 	if !v.IsValid() {
-		return Value{}, ErrFieldNotFound
+		return nil, ErrFieldNotFound
 	}
 
 	return NewValue(v.Interface())

@@ -38,17 +38,17 @@ func (op *cmpOp) Eval(env *environment.Environment) (document.Value, error) {
 func (op *cmpOp) compare(l, r document.Value) (bool, error) {
 	switch op.Tok {
 	case scanner.EQ:
-		return l.IsEqual(r)
+		return document.IsEqual(l, r)
 	case scanner.NEQ:
-		return l.IsNotEqual(r)
+		return document.IsNotEqual(l, r)
 	case scanner.GT:
-		return l.IsGreaterThan(r)
+		return document.IsGreaterThan(l, r)
 	case scanner.GTE:
-		return l.IsGreaterThanOrEqual(r)
+		return document.IsGreaterThanOrEqual(l, r)
 	case scanner.LT:
-		return l.IsLesserThan(r)
+		return document.IsLesserThan(l, r)
 	case scanner.LTE:
-		return l.IsLesserThanOrEqual(r)
+		return document.IsLesserThanOrEqual(l, r)
 	default:
 		panic(stringutil.Sprintf("unknown token %v", op.Tok))
 	}
@@ -108,12 +108,12 @@ func (op *BetweenOperator) Eval(env *environment.Environment) (document.Value, e
 			return NullLiteral, nil
 		}
 
-		ok, err := x.IsGreaterThanOrEqual(a)
+		ok, err := document.IsGreaterThanOrEqual(x, a)
 		if !ok || err != nil {
 			return FalseLiteral, err
 		}
 
-		ok, err = x.IsLesserThanOrEqual(b)
+		ok, err = document.IsLesserThanOrEqual(x, b)
 		if !ok || err != nil {
 			return FalseLiteral, err
 		}
@@ -196,7 +196,7 @@ func Is(a, b Expr) Expr {
 
 func (op *IsOperator) Eval(env *environment.Environment) (document.Value, error) {
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
-		ok, err := a.IsEqual(b)
+		ok, err := document.IsEqual(a, b)
 		if err != nil {
 			return NullLiteral, err
 		}
@@ -219,7 +219,7 @@ func IsNot(a, b Expr) Expr {
 
 func (op *IsNotOperator) Eval(env *environment.Environment) (document.Value, error) {
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
-		ok, err := a.IsNotEqual(b)
+		ok, err := document.IsNotEqual(a, b)
 		if err != nil {
 			return NullLiteral, err
 		}

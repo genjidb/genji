@@ -128,7 +128,7 @@ func (op *FilterOperator) Iterate(in *environment.Environment, f func(out *envir
 			return err
 		}
 
-		ok, err := v.IsTruthy()
+		ok, err := document.IsTruthy(v)
 		if err != nil || !ok {
 			return err
 		}

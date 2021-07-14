@@ -9,7 +9,9 @@ import (
 )
 
 // A LiteralValue represents a literal value of any type defined by the value package.
-type LiteralValue document.Value
+type LiteralValue struct {
+	Value document.Value
+}
 
 // IsEqual compares this expression with the other expression and returns
 // true if they are equal.
@@ -18,18 +20,18 @@ func (v LiteralValue) IsEqual(other Expr) bool {
 	if !ok {
 		return false
 	}
-	ok, err := document.Value(v).IsEqual(document.Value(o))
+	ok, err := document.IsEqual(v.Value, o.Value)
 	return ok && err == nil
 }
 
 // String implements the stringutil.Stringer interface.
 func (v LiteralValue) String() string {
-	return document.Value(v).String()
+	return v.Value.String()
 }
 
 // Eval returns l. It implements the Expr interface.
 func (v LiteralValue) Eval(*environment.Environment) (document.Value, error) {
-	return document.Value(v), nil
+	return document.Value(v.Value), nil
 }
 
 // LiteralExprList is a list of expressions.
@@ -144,7 +146,7 @@ func (kvp *KVPairs) Eval(env *environment.Environment) (document.Value, error) {
 	for _, kv := range kvp.Pairs {
 		v, err := kv.V.Eval(env)
 		if err != nil {
-			return document.Value{}, err
+			return nil, err
 		}
 
 		fb.Add(kv.K, v)

@@ -67,7 +67,7 @@ func TestParserAlterTableAddField(t *testing.T) {
 				Path:         document.Path(testutil.ParsePath(t, "bar")),
 				Type:         document.IntegerValue,
 				IsNotNull:    true,
-				DefaultValue: expr.Constraint(expr.LiteralValue(document.NewIntegerValue(0))),
+				DefaultValue: expr.Constraint(expr.LiteralValue{Value: document.NewIntegerValue(0)}),
 			},
 		}, false},
 		{"With error / missing FIELD keyword", "ALTER TABLE foo ADD bar", nil, true},

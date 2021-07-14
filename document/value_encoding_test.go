@@ -149,7 +149,7 @@ func TestValueBinaryMarshaling(t *testing.T) {
 			require.NoError(t, err)
 
 			got := NewEmptyValue(test.v.Type())
-			err = got.UnmarshalBinary(b)
+			err = got.(*value).UnmarshalBinary(b)
 			require.NoError(t, err)
 			require.Equal(t, test.v, got)
 		})
@@ -158,7 +158,7 @@ func TestValueBinaryMarshaling(t *testing.T) {
 
 // UnmarshalBinary decodes data to v. Data must not contain type information,
 // instead, v.Type() must be set.
-func (v *Value) UnmarshalBinary(data []byte) error {
+func (v *value) UnmarshalBinary(data []byte) error {
 	switch v.Type() {
 	case NullValue:
 	case BlobValue:
@@ -213,48 +213,48 @@ func decodeValue(data []byte) (Value, error) {
 	case BlobValue:
 		t, err := binarysort.DecodeBase64(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewBlobValue(t), nil
 	case TextValue:
 		t, err := binarysort.DecodeBase64(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewTextValue(string(t)), nil
 	case BoolValue:
 		b, err := binarysort.DecodeBool(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewBoolValue(b), nil
 	case IntegerValue:
 		x, err := binarysort.DecodeInt64(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewIntegerValue(x), nil
 	case DoubleValue:
 		x, err := binarysort.DecodeFloat64(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewDoubleValue(x), nil
 	case ArrayValue:
 		a, _, err := decodeArray(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewArrayValue(a), nil
 	case DocumentValue:
 		d, _, err := decodeDocument(data)
 		if err != nil {
-			return Value{}, err
+			return nil, err
 		}
 		return NewDocumentValue(d), nil
 	}
 
-	return Value{}, errors.New("unknown type")
+	return nil, errors.New("unknown type")
 }
 
 func decodeValueUntil(data []byte, delim, end byte) (Value, int, error) {
@@ -266,14 +266,14 @@ func decodeValueUntil(data []byte, delim, end byte) (Value, int, error) {
 		a, n, err := decodeArray(data[i:])
 		i += n
 		if err != nil {
-			return Value{}, i, err
+			return nil, i, err
 		}
 		return NewArrayValue(a), i, nil
 	case DocumentValue:
 		d, n, err := decodeDocument(data[i:])
 		i += n
 		if err != nil {
-			return Value{}, i, err
+			return nil, i, err
 		}
 		return NewDocumentValue(d), i, nil
 	case NullValue:
@@ -283,14 +283,14 @@ func decodeValueUntil(data []byte, delim, end byte) (Value, int, error) {
 		if i+8 < len(data) && (data[i+8] == delim || data[i+8] == end) {
 			i += 8
 		} else {
-			return Value{}, 0, errors.New("malformed " + t.String())
+			return nil, 0, errors.New("malformed " + t.String())
 		}
 	case BlobValue, TextValue:
 		for i < len(data) && data[i] != delim && data[i] != end {
 			i++
 		}
 	default:
-		return Value{}, 0, errors.New("invalid type character")
+		return nil, 0, errors.New("invalid type character")
 	}
 
 	v, err := decodeValue(data[:i])

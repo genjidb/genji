@@ -83,13 +83,11 @@ func (e *indexValueEncoder) EncodeValue(v document.Value) error {
 		return nil
 	}
 
-	if v.Type() != e.typ {
-		if v.Type().IsAny() {
-			v = document.NewEmptyValue(e.typ)
-		} else {
-			// this should never happen, but if it does, something is very wrong
-			panic("incompatible index type")
-		}
+	if v == nil {
+		v = document.NewEmptyValue(e.typ)
+	} else if v.Type() != e.typ {
+		// this should never happen, but if it does, something is very wrong
+		panic("incompatible index type")
 	}
 
 	if v.V() == nil {
@@ -291,7 +289,7 @@ func (pivot Pivot) validate(idx *Index) {
 func (pivot Pivot) IsAny() bool {
 	res := true
 	for _, p := range pivot {
-		res = res && p.Type().IsAny() && p.V() == nil
+		res = res && p == nil
 		if !res {
 			break
 		}
@@ -345,7 +343,7 @@ func (idx *Index) iterateOnStore(pivot Pivot, reverse bool, fn func(val, key []b
 
 	// If index and pivot values are typed but not of the same type, return no results.
 	for i, pv := range pivot {
-		if !pv.Type().IsAny() && !idx.Info.Types[i].IsAny() && pv.Type() != idx.Info.Types[i] {
+		if pv != nil && !idx.Info.Types[i].IsAny() && pv.Type() != idx.Info.Types[i] {
 			return nil
 		}
 	}
@@ -496,7 +494,7 @@ func (idx *Index) iterate(st engine.Store, pivot Pivot, reverse bool, fn func(it
 		itm := it.Item()
 
 		// If index is untyped and pivot first element is typed, only iterate on values with the same type as the first pivot
-		if len(pivot) > 0 && idx.Info.Types[0].IsAny() && !pivot[0].Type().IsAny() && itm.Key()[0] != byte(pivot[0].Type()) {
+		if len(pivot) > 0 && idx.Info.Types[0].IsAny() && pivot[0] != nil && itm.Key()[0] != byte(pivot[0].Type()) {
 			return nil
 		}
 

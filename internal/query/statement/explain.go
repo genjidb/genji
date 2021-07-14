@@ -42,7 +42,7 @@ func (stmt *ExplainStmt) Run(ctx *Context) (Result, error) {
 			Op: stream.Project(
 				&expr.NamedExpr{
 					ExprName: "plan",
-					Expr:     expr.LiteralValue(document.NewTextValue(plan)),
+					Expr:     expr.LiteralValue{Value: document.NewTextValue(plan)},
 				}),
 		},
 		ReadOnly: true,

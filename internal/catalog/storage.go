@@ -265,7 +265,7 @@ func (s *CatalogTable) Init(tx *database.Transaction) error {
 func (s *CatalogTable) Load(tx *database.Transaction) (tables []database.TableInfo, indexes []database.IndexInfo, sequences []database.SequenceInfo, err error) {
 	tb := s.Table(tx)
 
-	err = tb.AscendGreaterOrEqual(document.Value{}, func(d document.Document) error {
+	err = tb.AscendGreaterOrEqual(nil, func(d document.Document) error {
 		tp, err := d.GetByField("type")
 		if err != nil {
 			return err

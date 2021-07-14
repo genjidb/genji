@@ -154,7 +154,7 @@ func (fb FieldBuffer) GetByField(field string) (Value, error) {
 		}
 	}
 
-	return Value{}, ErrFieldNotFound
+	return nil, ErrFieldNotFound
 }
 
 // setFieldValue replaces a field if it already exists or creates one if not.
@@ -516,15 +516,15 @@ func (p Path) IsEqual(other Path) bool {
 // GetValueFromDocument returns the value at path p from d.
 func (p Path) GetValueFromDocument(d Document) (Value, error) {
 	if len(p) == 0 {
-		return Value{}, ErrFieldNotFound
+		return nil, ErrFieldNotFound
 	}
 	if p[0].FieldName == "" {
-		return Value{}, ErrFieldNotFound
+		return nil, ErrFieldNotFound
 	}
 
 	v, err := d.GetByField(p[0].FieldName)
 	if err != nil {
-		return Value{}, err
+		return nil, err
 	}
 
 	if len(p) == 1 {
@@ -537,19 +537,19 @@ func (p Path) GetValueFromDocument(d Document) (Value, error) {
 // GetValueFromArray returns the value at path p from a.
 func (p Path) GetValueFromArray(a Array) (Value, error) {
 	if len(p) == 0 {
-		return Value{}, ErrFieldNotFound
+		return nil, ErrFieldNotFound
 	}
 	if p[0].FieldName != "" {
-		return Value{}, ErrFieldNotFound
+		return nil, ErrFieldNotFound
 	}
 
 	v, err := a.GetByIndex(p[0].ArrayIndex)
 	if err != nil {
 		if err == ErrValueNotFound {
-			return Value{}, ErrFieldNotFound
+			return nil, ErrFieldNotFound
 		}
 
-		return Value{}, err
+		return nil, err
 	}
 
 	if len(p) == 1 {
@@ -573,7 +573,7 @@ func (p Path) getValueFromValue(v Value) (Value, error) {
 		return p.GetValueFromArray(v.V().(Array))
 	}
 
-	return Value{}, ErrFieldNotFound
+	return nil, ErrFieldNotFound
 }
 
 type jsonDocument struct {

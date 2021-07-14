@@ -234,7 +234,7 @@ func (e EncodedArray) MarshalJSON() ([]byte, error) {
 func decodeValueFromDocument(data []byte, field string) (document.Value, error) {
 	hsize, n := binary.Uvarint(data)
 	if n <= 0 {
-		return document.Value{}, errors.New("cannot decode data")
+		return nil, errors.New("cannot decode data")
 	}
 
 	hdata := data[n : n+int(hsize)]
@@ -243,7 +243,7 @@ func decodeValueFromDocument(data []byte, field string) (document.Value, error) 
 	// skip number of fields
 	_, n = binary.Uvarint(hdata)
 	if n <= 0 {
-		return document.Value{}, errors.New("cannot decode data")
+		return nil, errors.New("cannot decode data")
 	}
 	hdata = hdata[n:]
 
@@ -251,7 +251,7 @@ func decodeValueFromDocument(data []byte, field string) (document.Value, error) 
 	for len(hdata) > 0 {
 		n, err := fh.Decode(hdata)
 		if err != nil {
-			return document.Value{}, err
+			return nil, err
 		}
 		hdata = hdata[n:]
 
@@ -260,7 +260,7 @@ func decodeValueFromDocument(data []byte, field string) (document.Value, error) 
 		}
 	}
 
-	return document.Value{}, document.ErrFieldNotFound
+	return nil, document.ErrFieldNotFound
 }
 
 // EncodeArray encodes a into its binary representation.
@@ -332,7 +332,7 @@ func DecodeValue(t document.ValueType, data []byte) (document.Value, error) {
 	case document.BoolValue:
 		x, err := binarysort.DecodeBool(data)
 		if err != nil {
-			return document.Value{}, err
+			return nil, err
 		}
 		return document.NewBoolValue(x), nil
 	case document.IntegerValue:
@@ -341,12 +341,12 @@ func DecodeValue(t document.ValueType, data []byte) (document.Value, error) {
 	case document.DoubleValue:
 		x, err := binarysort.DecodeFloat64(data)
 		if err != nil {
-			return document.Value{}, err
+			return nil, err
 		}
 		return document.NewDoubleValue(x), nil
 	case document.NullValue:
 		return document.NewNullValue(), nil
 	}
 
-	return document.Value{}, errors.New("unknown type")
+	return nil, errors.New("unknown type")
 }

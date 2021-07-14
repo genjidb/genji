@@ -19,5 +19,5 @@ func NewValue(x interface{}) (Value, error) {
 		return NewTextValue(v), nil
 	}
 
-	return Value{}, &ErrUnsupportedType{x, ""}
+	return nil, &ErrUnsupportedType{x, ""}
 }

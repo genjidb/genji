@@ -260,7 +260,7 @@ func (f *FieldConstraints) Add(newFc *FieldConstraint) error {
 		v, err := newFc.DefaultValue.Eval(nil)
 		// if there is no error, check if the default value can be converted to the type of the constraint
 		if err == nil {
-			_, err = v.CastAs(newFc.Type)
+			_, err = document.CastAs(v, newFc.Type)
 			if err != nil {
 				return stringutil.Errorf("default value %q cannot be converted to type %q", newFc.DefaultValue, newFc.Type)
 			}
@@ -360,7 +360,7 @@ type ConversionFunc func(v document.Value, path document.Path, targetType docume
 
 // CastConversion is a ConversionFunc that casts the value to the target type.
 func CastConversion(v document.Value, path document.Path, targetType document.ValueType) (document.Value, error) {
-	newV, err := v.CastAs(targetType)
+	newV, err := document.CastAs(v, targetType)
 	if err != nil {
 		return v, stringutil.Errorf("field %q must be of type %q, got %q", path, targetType, v.Type())
 	}
@@ -407,7 +407,7 @@ func (f FieldConstraints) convertScalarAtPath(path document.Path, v document.Val
 	// no constraint have been found for this path.
 	// check if this is an integer and convert it to double.
 	if v.Type() == document.IntegerValue {
-		newV, _ := v.CastAsDouble()
+		newV, _ := document.CastAsDouble(v)
 		return newV, nil
 	}
 

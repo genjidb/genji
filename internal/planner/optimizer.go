@@ -184,10 +184,10 @@ func precalculateExpr(e expr.Expr) (expr.Expr, error) {
 		if literalsOnly {
 			var fb document.FieldBuffer
 			for i := range t.Pairs {
-				fb.Add(t.Pairs[i].K, document.Value(t.Pairs[i].V.(expr.LiteralValue)))
+				fb.Add(t.Pairs[i].K, document.Value(t.Pairs[i].V.(expr.LiteralValue).Value))
 			}
 
-			return expr.LiteralValue(document.NewDocumentValue(&fb)), nil
+			return expr.LiteralValue{Value: document.NewDocumentValue(&fb)}, nil
 		}
 	case expr.Operator:
 		// since expr.Operator is an interface,
@@ -222,7 +222,7 @@ func precalculateExpr(e expr.Expr) (expr.Expr, error) {
 				panic(err)
 			}
 			// we replace this expression with the result of its evaluation
-			return expr.LiteralValue(v), nil
+			return expr.LiteralValue{Value: v}, nil
 		}
 	}
 
@@ -245,7 +245,7 @@ func RemoveUnnecessaryFilterNodesRule(s *stream.Stream, _ database.Catalog) (*st
 					// ex: WHERE 1
 
 					// if the expr is falsy, we return an empty tree
-					ok, err := document.Value(t).IsTruthy()
+					ok, err := document.IsTruthy(t.Value)
 					if err != nil {
 						return nil, err
 					}
@@ -262,8 +262,8 @@ func RemoveUnnecessaryFilterNodesRule(s *stream.Stream, _ database.Catalog) (*st
 					// IN operator with empty array
 					// ex: WHERE a IN []
 					lv, ok := t.RightHand().(expr.LiteralValue)
-					if ok && document.Value(lv).Type() == document.ArrayValue {
-						l, err := document.ArrayLength(document.Value(lv).V().(document.Array))
+					if ok && lv.Value.Type() == document.ArrayValue {
+						l, err := document.ArrayLength(lv.Value.V().(document.Array))
 						if err != nil {
 							return nil, err
 						}

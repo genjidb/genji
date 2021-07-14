@@ -21,21 +21,21 @@ func (op *arithmeticOperator) Eval(env *environment.Environment) (document.Value
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
 		switch op.simpleOperator.Tok {
 		case scanner.ADD:
-			return a.Add(b)
+			return document.Add(a, b)
 		case scanner.SUB:
-			return a.Sub(b)
+			return document.Sub(a, b)
 		case scanner.MUL:
-			return a.Mul(b)
+			return document.Mul(a, b)
 		case scanner.DIV:
-			return a.Div(b)
+			return document.Div(a, b)
 		case scanner.MOD:
-			return a.Mod(b)
+			return document.Mod(a, b)
 		case scanner.BITWISEAND:
-			return a.BitwiseAnd(b)
+			return document.BitwiseAnd(a, b)
 		case scanner.BITWISEOR:
-			return a.BitwiseOr(b)
+			return document.BitwiseOr(a, b)
 		case scanner.BITWISEXOR:
-			return a.BitwiseXor(b)
+			return document.BitwiseXor(a, b)
 		}
 
 		panic("unknown arithmetic token")

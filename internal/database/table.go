@@ -412,7 +412,7 @@ func (d *lazilyDecodedDocument) MarshalJSON() ([]byte, error) {
 // Iterate goes through all the documents of the table and calls the given function by passing each one of them.
 // If the given function returns an error, the iteration stops.
 func (t *Table) Iterate(fn func(d document.Document) error) error {
-	return t.AscendGreaterOrEqual(document.Value{}, fn)
+	return t.AscendGreaterOrEqual(nil, fn)
 }
 
 // EncodeValue encodes a value following primary key constraints.
@@ -430,7 +430,7 @@ func (t *Table) encodeValueToKey(info *TableInfo, v document.Value) ([]byte, err
 	if pk == nil {
 		// if no primary key was defined, convert the pivot to an integer then to an unsigned integer
 		// and encode it as a varint
-		v, err = v.CastAsInteger()
+		v, err = document.CastAsInteger(v)
 		if err != nil {
 			return nil, err
 		}
@@ -444,7 +444,7 @@ func (t *Table) encodeValueToKey(info *TableInfo, v document.Value) ([]byte, err
 
 	// if a primary key was defined and the primary is typed, convert the value to the right type.
 	if !pk.Type.IsAny() {
-		v, err = v.CastAs(pk.Type)
+		v, err = document.CastAs(v, pk.Type)
 		if err != nil {
 			return nil, err
 		}
@@ -456,7 +456,7 @@ func (t *Table) encodeValueToKey(info *TableInfo, v document.Value) ([]byte, err
 	// and the value to encode is an integer
 	// convert it to a double.
 	if v.Type() == document.IntegerValue {
-		v, err = v.CastAsDouble()
+		v, err = document.CastAsDouble(v)
 		if err != nil {
 			return nil, err
 		}
@@ -491,7 +491,7 @@ func (t *Table) iterate(pivot document.Value, reverse bool, fn func(d document.D
 	var seek []byte
 
 	// if there is a pivot, convert it to the right type
-	if !pivot.Type().IsAny() && pivot.V() != nil {
+	if pivot != nil && pivot.V() != nil {
 		var err error
 		seek, err = t.encodeValueToKey(t.Info, pivot)
 		if err != nil {

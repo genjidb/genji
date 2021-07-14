@@ -24,7 +24,7 @@ func (op *AndOp) Eval(env *environment.Environment) (document.Value, error) {
 	if err != nil {
 		return FalseLiteral, err
 	}
-	isTruthy, err := s.IsTruthy()
+	isTruthy, err := document.IsTruthy(s)
 	if !isTruthy || err != nil {
 		return FalseLiteral, err
 	}
@@ -33,7 +33,7 @@ func (op *AndOp) Eval(env *environment.Environment) (document.Value, error) {
 	if err != nil {
 		return FalseLiteral, err
 	}
-	isTruthy, err = s.IsTruthy()
+	isTruthy, err = document.IsTruthy(s)
 	if !isTruthy || err != nil {
 		return FalseLiteral, err
 	}
@@ -58,7 +58,7 @@ func (op *OrOp) Eval(env *environment.Environment) (document.Value, error) {
 	if err != nil {
 		return FalseLiteral, err
 	}
-	isTruthy, err := s.IsTruthy()
+	isTruthy, err := document.IsTruthy(s)
 	if err != nil {
 		return FalseLiteral, err
 	}
@@ -70,7 +70,7 @@ func (op *OrOp) Eval(env *environment.Environment) (document.Value, error) {
 	if err != nil {
 		return FalseLiteral, err
 	}
-	isTruthy, err = s.IsTruthy()
+	isTruthy, err = document.IsTruthy(s)
 	if err != nil {
 		return FalseLiteral, err
 	}
@@ -98,7 +98,7 @@ func (op *NotOp) Eval(env *environment.Environment) (document.Value, error) {
 		return FalseLiteral, err
 	}
 
-	isTruthy, err := s.IsTruthy()
+	isTruthy, err := document.IsTruthy(s)
 	if err != nil {
 		return FalseLiteral, err
 	}

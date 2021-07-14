@@ -33,13 +33,13 @@ func (op operator) String() string {
 }
 
 // IsEqual returns true if v is equal to the given value.
-func (v Value) IsEqual(other Value) (bool, error) {
+func IsEqual(v, other Value) (bool, error) {
 	return compare(operatorEq, v, other)
 }
 
 // IsNotEqual returns true if v is not equal to the given value.
-func (v Value) IsNotEqual(other Value) (bool, error) {
-	ok, err := v.IsEqual(other)
+func IsNotEqual(v, other Value) (bool, error) {
+	ok, err := IsEqual(v, other)
 	if err != nil {
 		return ok, err
 	}
@@ -48,22 +48,22 @@ func (v Value) IsNotEqual(other Value) (bool, error) {
 }
 
 // IsGreaterThan returns true if v is greather than the given value.
-func (v Value) IsGreaterThan(other Value) (bool, error) {
+func IsGreaterThan(v, other Value) (bool, error) {
 	return compare(operatorGt, v, other)
 }
 
 // IsGreaterThanOrEqual returns true if v is greather than or equal to the given value.
-func (v Value) IsGreaterThanOrEqual(other Value) (bool, error) {
+func IsGreaterThanOrEqual(v, other Value) (bool, error) {
 	return compare(operatorGte, v, other)
 }
 
 // IsLesserThan returns true if v is lesser than the given value.
-func (v Value) IsLesserThan(other Value) (bool, error) {
+func IsLesserThan(v, other Value) (bool, error) {
 	return compare(operatorLt, v, other)
 }
 
 // IsLesserThanOrEqual returns true if v is lesser than or equal to the given value.
-func (v Value) IsLesserThanOrEqual(other Value) (bool, error) {
+func IsLesserThanOrEqual(v, other Value) (bool, error) {
 	return compare(operatorLte, v, other)
 }
 
@@ -185,8 +185,8 @@ func compareIntegers(op operator, l, r int64) bool {
 }
 
 func compareNumbers(op operator, l, r Value) bool {
-	l, _ = l.CastAsDouble()
-	r, _ = r.CastAsDouble()
+	l, _ = CastAsDouble(l)
+	r, _ = CastAsDouble(r)
 
 	af := l.V().(float64)
 	bf := r.V().(float64)

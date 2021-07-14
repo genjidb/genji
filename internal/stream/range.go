@@ -77,14 +77,14 @@ func (r *ValueRange) encode(table *database.Table, env *environment.Environment)
 		return nil, err
 	}
 
-	if !rng.Min.Type().IsAny() {
+	if rng.Min != nil {
 		rng.EncodedMin, err = table.EncodeValue(rng.Min)
 		if err != nil {
 			return nil, err
 		}
 		rng.RangeType = rng.Min.Type()
 	}
-	if !rng.Max.Type().IsAny() {
+	if rng.Max != nil {
 		rng.EncodedMax, err = table.EncodeValue(rng.Max)
 		if err != nil {
 			return nil, err
@@ -97,11 +97,11 @@ func (r *ValueRange) encode(table *database.Table, env *environment.Environment)
 	}
 
 	// ensure boundaries are typed
-	if rng.Min.Type().IsAny() {
-		rng.Min = document.NewValueWith(rng.RangeType, rng.Min.V())
+	if rng.Min == nil {
+		rng.Min = document.NewEmptyValue(rng.RangeType)
 	}
-	if rng.Max.Type().IsAny() {
-		rng.Max = document.NewValueWith(rng.RangeType, rng.Max.V())
+	if rng.Max == nil {
+		rng.Max = document.NewEmptyValue(rng.RangeType)
 	}
 
 	if r.Exclusive && r.Exact {
@@ -175,13 +175,13 @@ func (r *encodedValueRange) Convert(v document.Value, isMin bool) (document.Valu
 	// is lossless.
 	v, err := r.constraints.ConvertValueAtPath(r.path, v, func(v document.Value, path document.Path, targetType document.ValueType) (document.Value, error) {
 		if v.Type() == document.IntegerValue && targetType == document.DoubleValue {
-			return v.CastAsDouble()
+			return document.CastAsDouble(v)
 		}
 
 		if v.Type() == document.DoubleValue && targetType == document.IntegerValue {
 			f := v.V().(float64)
 			if float64(int64(f)) == f {
-				return v.CastAsInteger()
+				return document.CastAsInteger(v)
 			}
 
 			if r.Exact {
@@ -209,7 +209,7 @@ func (r *encodedValueRange) Convert(v document.Value, isMin bool) (document.Valu
 				// and max boundaries, we are operating a BETWEEN operation,
 				// meaning that we need to convert a BETWEEN 1.1 AND 2.2 to a >= 2 AND a <= 3,
 				// and thus have to set exclusive to false.
-				r.Exclusive = r.Min.Type().IsAny()
+				r.Exclusive = r.Min == nil
 			}
 		}
 
@@ -546,13 +546,13 @@ func (r *encodedIndexRange) Convert(v document.Value, p document.Path, t documen
 	// is lossless.
 	v, err := r.constraints.ConvertValueAtPath(p, v, func(v document.Value, path document.Path, targetType document.ValueType) (document.Value, error) {
 		if v.Type() == document.IntegerValue && targetType == document.DoubleValue {
-			return v.CastAsDouble()
+			return document.CastAsDouble(v)
 		}
 
 		if v.Type() == document.DoubleValue && targetType == document.IntegerValue {
 			f := v.V().(float64)
 			if float64(int64(f)) == f {
-				return v.CastAsInteger()
+				return document.CastAsInteger(v)
 			}
 
 			if r.Exact {

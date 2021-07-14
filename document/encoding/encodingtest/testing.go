@@ -87,7 +87,7 @@ func testEncodeDecode(t *testing.T, codecBuilder func() encoding.Codec) {
 			codec := codecBuilder()
 			err := codec.NewEncoder(&buf).EncodeDocument(test.d)
 			require.NoError(t, err)
-			ok, err := document.NewDocumentValue(test.d).IsEqual(document.NewDocumentValue(codec.NewDecoder(buf.Bytes())))
+			ok, err := document.IsEqual(document.NewDocumentValue(test.d), document.NewDocumentValue(codec.NewDecoder(buf.Bytes())))
 			require.NoError(t, err)
 			require.True(t, ok)
 			data, err := document.MarshalJSON(codec.NewDecoder(buf.Bytes()))

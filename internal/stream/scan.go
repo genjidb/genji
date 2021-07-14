@@ -136,7 +136,7 @@ func (it *SeqScanOperator) Iterate(in *environment.Environment, fn func(out *env
 		iterator = table.DescendLessOrEqual
 	}
 
-	return iterator(document.Value{}, func(d document.Document) error {
+	return iterator(nil, func(d document.Document) error {
 		newEnv.SetDocument(d)
 		return fn(&newEnv)
 	})

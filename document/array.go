@@ -44,7 +44,7 @@ func ArrayContains(a Array, v Value) (bool, error) {
 	var found bool
 
 	err := a.Iterate(func(i int, vv Value) error {
-		ok, err := vv.IsEqual(v)
+		ok, err := IsEqual(vv, v)
 		if err != nil {
 			return err
 		}
@@ -88,7 +88,7 @@ func (vb *ValueBuffer) Iterate(fn func(i int, value Value) error) error {
 // GetByIndex returns a value set at the given index. If the index is out of range it returns an error.
 func (vb *ValueBuffer) GetByIndex(i int) (Value, error) {
 	if i >= len(vb.Values) {
-		return Value{}, ErrFieldNotFound
+		return nil, ErrFieldNotFound
 	}
 
 	return vb.Values[i], nil
@@ -282,7 +282,7 @@ func (vb *ValueBuffer) IsEqual(other *ValueBuffer) bool {
 	}
 
 	for i, v := range vb.Values {
-		if eq, err := v.IsEqual(other.Values[i]); err != nil || !eq {
+		if eq, err := IsEqual(v, other.Values[i]); err != nil || !eq {
 			return false
 		}
 	}
@@ -306,7 +306,7 @@ func (a *sortableArray) Swap(i, j int) {
 func (a *sortableArray) Less(i, j int) (ok bool) {
 	it, jt := a.vb.Values[i].Type(), a.vb.Values[j].Type()
 	if it == jt || (it.IsNumber() && jt.IsNumber()) {
-		ok, a.err = a.vb.Values[i].IsLesserThan(a.vb.Values[j])
+		ok, a.err = IsLesserThan(a.vb.Values[i], a.vb.Values[j])
 		return
 	}
 
