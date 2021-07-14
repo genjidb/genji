@@ -77,31 +77,31 @@ func (r *ValueRange) encode(table *database.Table, env *environment.Environment)
 		return nil, err
 	}
 
-	if !rng.Min.Type.IsAny() {
+	if !rng.Min.Type().IsAny() {
 		rng.EncodedMin, err = table.EncodeValue(rng.Min)
 		if err != nil {
 			return nil, err
 		}
-		rng.RangeType = rng.Min.Type
+		rng.RangeType = rng.Min.Type()
 	}
-	if !rng.Max.Type.IsAny() {
+	if !rng.Max.Type().IsAny() {
 		rng.EncodedMax, err = table.EncodeValue(rng.Max)
 		if err != nil {
 			return nil, err
 		}
-		if !rng.RangeType.IsAny() && rng.RangeType != rng.Max.Type {
+		if !rng.RangeType.IsAny() && rng.RangeType != rng.Max.Type() {
 			panic("range contain values of different types")
 		}
 
-		rng.RangeType = rng.Max.Type
+		rng.RangeType = rng.Max.Type()
 	}
 
 	// ensure boundaries are typed
-	if rng.Min.Type.IsAny() {
-		rng.Min.Type = rng.RangeType
+	if rng.Min.Type().IsAny() {
+		rng.Min = document.NewValueWith(rng.RangeType, rng.Min.V())
 	}
-	if rng.Max.Type.IsAny() {
-		rng.Max.Type = rng.RangeType
+	if rng.Max.Type().IsAny() {
+		rng.Max = document.NewValueWith(rng.RangeType, rng.Max.V())
 	}
 
 	if r.Exclusive && r.Exact {
@@ -174,11 +174,11 @@ func (r *encodedValueRange) Convert(v document.Value, isMin bool) (document.Valu
 	// if a number is encountered, try to convert it to the right type if and only if the conversion
 	// is lossless.
 	v, err := r.constraints.ConvertValueAtPath(r.path, v, func(v document.Value, path document.Path, targetType document.ValueType) (document.Value, error) {
-		if v.Type == document.IntegerValue && targetType == document.DoubleValue {
+		if v.Type() == document.IntegerValue && targetType == document.DoubleValue {
 			return v.CastAsDouble()
 		}
 
-		if v.Type == document.DoubleValue && targetType == document.IntegerValue {
+		if v.Type() == document.DoubleValue && targetType == document.IntegerValue {
 			f := v.V().(float64)
 			if float64(int64(f)) == f {
 				return v.CastAsInteger()
@@ -209,7 +209,7 @@ func (r *encodedValueRange) Convert(v document.Value, isMin bool) (document.Valu
 				// and max boundaries, we are operating a BETWEEN operation,
 				// meaning that we need to convert a BETWEEN 1.1 AND 2.2 to a >= 2 AND a <= 3,
 				// and thus have to set exclusive to false.
-				r.Exclusive = r.Min.Type.IsAny()
+				r.Exclusive = r.Min.Type().IsAny()
 			}
 		}
 
@@ -225,7 +225,7 @@ func (r *encodedValueRange) Convert(v document.Value, isMin bool) (document.Valu
 	}
 
 	// if the index is typed, it must be of the same type as the converted value
-	return v, r.pkType == v.Type, nil
+	return v, r.pkType == v.Type(), nil
 }
 
 func (r *encodedValueRange) IsInRange(value []byte) bool {
@@ -453,7 +453,7 @@ func (r *IndexRange) encode(index *database.Index, table *database.Table, env *e
 			return nil, err
 		}
 
-		rng.Max = document.NewValueBuffer(document.Value{Type: v.Type})
+		rng.Max = document.NewValueBuffer(document.NewEmptyValue(v.Type()))
 	}
 
 	if len(r.Min) == 0 && len(r.Max) > 0 {
@@ -462,7 +462,7 @@ func (r *IndexRange) encode(index *database.Index, table *database.Table, env *e
 			return nil, err
 		}
 
-		rng.Min = document.NewValueBuffer(document.Value{Type: v.Type})
+		rng.Min = document.NewValueBuffer(document.NewEmptyValue(v.Type()))
 	}
 
 	if r.Exclusive && r.Exact {
@@ -545,11 +545,11 @@ func (r *encodedIndexRange) Convert(v document.Value, p document.Path, t documen
 	// if a number is encountered, try to convert it to the right type if and only if the conversion
 	// is lossless.
 	v, err := r.constraints.ConvertValueAtPath(p, v, func(v document.Value, path document.Path, targetType document.ValueType) (document.Value, error) {
-		if v.Type == document.IntegerValue && targetType == document.DoubleValue {
+		if v.Type() == document.IntegerValue && targetType == document.DoubleValue {
 			return v.CastAsDouble()
 		}
 
-		if v.Type == document.DoubleValue && targetType == document.IntegerValue {
+		if v.Type() == document.DoubleValue && targetType == document.IntegerValue {
 			f := v.V().(float64)
 			if float64(int64(f)) == f {
 				return v.CastAsInteger()
@@ -596,7 +596,7 @@ func (r *encodedIndexRange) Convert(v document.Value, p document.Path, t documen
 	}
 
 	// if the index is typed, it must be of the same type as the converted value
-	return v, t == v.Type, nil
+	return v, t == v.Type(), nil
 }
 
 func (r *encodedIndexRange) IsInRange(value []byte) bool {

@@ -206,7 +206,7 @@ func TestFieldBuffer(t *testing.T) {
 		require.NoError(t, err)
 
 		err = buf.Apply(func(p document.Path, v document.Value) (document.Value, error) {
-			if v.Type == document.ArrayValue || v.Type == document.DocumentValue {
+			if v.Type() == document.ArrayValue || v.Type() == document.DocumentValue {
 				return v, nil
 			}
 
@@ -395,31 +395,31 @@ func TestNewFromStruct(t *testing.T) {
 			case 13:
 				require.Equal(t, u.N, v.V().(float64))
 			case 14:
-				require.EqualValues(t, document.DocumentValue, v.Type)
+				require.EqualValues(t, document.DocumentValue, v.Type())
 			case 15:
 				require.EqualValues(t, *u.Q, v.V().(int64))
 			case 16:
-				require.EqualValues(t, document.DocumentValue, v.Type)
+				require.EqualValues(t, document.DocumentValue, v.Type())
 			case 17:
-				require.EqualValues(t, document.ArrayValue, v.Type)
+				require.EqualValues(t, document.ArrayValue, v.Type())
 			case 18:
-				require.EqualValues(t, document.NullValue, v.Type)
+				require.EqualValues(t, document.NullValue, v.Type())
 			case 19:
-				require.EqualValues(t, document.ArrayValue, v.Type)
+				require.EqualValues(t, document.ArrayValue, v.Type())
 			case 20:
-				require.EqualValues(t, document.ArrayValue, v.Type)
+				require.EqualValues(t, document.ArrayValue, v.Type())
 			case 21:
-				require.EqualValues(t, document.ArrayValue, v.Type)
+				require.EqualValues(t, document.ArrayValue, v.Type())
 			case 22:
-				require.EqualValues(t, document.ArrayValue, v.Type)
+				require.EqualValues(t, document.ArrayValue, v.Type())
 			case 23:
 				require.EqualValues(t, u.Z, v.V().(int64))
 			case 24:
-				require.EqualValues(t, document.NullValue, v.Type)
+				require.EqualValues(t, document.NullValue, v.Type())
 			case 25:
-				require.EqualValues(t, document.IntegerValue, v.Type)
+				require.EqualValues(t, document.IntegerValue, v.Type())
 			case 26:
-				require.EqualValues(t, document.TextValue, v.Type)
+				require.EqualValues(t, document.TextValue, v.Type())
 			default:
 				require.FailNowf(t, "", "unknown field %q", f)
 			}

@@ -455,7 +455,7 @@ func (t *Table) encodeValueToKey(info *TableInfo, v document.Value) ([]byte, err
 	// it no primary key type is specified,
 	// and the value to encode is an integer
 	// convert it to a double.
-	if v.Type == document.IntegerValue {
+	if v.Type() == document.IntegerValue {
 		v, err = v.CastAsDouble()
 		if err != nil {
 			return nil, err
@@ -491,7 +491,7 @@ func (t *Table) iterate(pivot document.Value, reverse bool, fn func(d document.D
 	var seek []byte
 
 	// if there is a pivot, convert it to the right type
-	if !pivot.Type.IsAny() && pivot.V() != nil {
+	if !pivot.Type().IsAny() && pivot.V() != nil {
 		var err error
 		seek, err = t.encodeValueToKey(t.Info, pivot)
 		if err != nil {

@@ -76,7 +76,7 @@ func EncodeDocument(d document.Document) ([]byte, error) {
 		format.Header.FieldHeaders = append(format.Header.FieldHeaders, FieldHeader{
 			NameSize:   uint64(len(f)),
 			NameString: f,
-			Type:       uint64(v.Type),
+			Type:       uint64(v.Type()),
 			Size:       uint64(len(data)),
 			Offset:     offset,
 		})
@@ -115,7 +115,7 @@ func DecodeDocument(buf []byte) document.Document {
 
 // EncodeValue encodes any value to a binary representation.
 func EncodeValue(v document.Value) ([]byte, error) {
-	switch v.Type {
+	switch v.Type() {
 	case document.DocumentValue:
 		return EncodeDocument(v.V().(document.Document))
 	case document.ArrayValue:
@@ -281,7 +281,7 @@ func EncodeArray(a document.Array) ([]byte, error) {
 		format.Header.FieldHeaders = append(format.Header.FieldHeaders, FieldHeader{
 			NameSize: uint64(len(index)),
 			Name:     index,
-			Type:     uint64(v.Type),
+			Type:     uint64(v.Type()),
 			Size:     uint64(len(data)),
 			Offset:   offset,
 		})

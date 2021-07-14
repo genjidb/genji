@@ -1,6 +1,6 @@
 package document
 
-// NewValue creates a value from x. It only supports a few type and doesn't rely on reflection.
+// NewValue creates a value from x. It only supports a few types and doesn't rely on reflection.
 func NewValue(x interface{}) (Value, error) {
 	switch v := x.(type) {
 	case nil:

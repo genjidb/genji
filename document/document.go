@@ -174,7 +174,7 @@ func (fb *FieldBuffer) setFieldValue(field string, reqValue Value) error {
 
 // setValueAtPath deep replaces or creates a field at the given path
 func setValueAtPath(v Value, p Path, newValue Value) (Value, error) {
-	switch v.Type {
+	switch v.Type() {
 	case DocumentValue:
 		var buf FieldBuffer
 		err := buf.ScanDocument(v.V().(Document))
@@ -281,7 +281,7 @@ func (fb *FieldBuffer) Delete(path Path) error {
 	if err != nil {
 		return err
 	}
-	switch v.Type {
+	switch v.Type() {
 	case DocumentValue:
 		subBuf, ok := v.V().(*FieldBuffer)
 		if !ok {
@@ -335,7 +335,7 @@ func (fb *FieldBuffer) Copy(d Document) error {
 	}
 
 	for i, f := range fb.fields {
-		switch f.Value.Type {
+		switch f.Value.Type() {
 		case DocumentValue:
 			var buf FieldBuffer
 			err = buf.Copy(f.Value.V().(Document))
@@ -380,7 +380,7 @@ func (fb *FieldBuffer) Apply(fn func(p Path, v Value) (Value, error)) error {
 		}
 		fb.fields[i].Value = f.Value
 
-		switch f.Value.Type {
+		switch f.Value.Type() {
 		case DocumentValue:
 			buf, ok := f.Value.V().(*FieldBuffer)
 			if !ok {
@@ -566,7 +566,7 @@ func (p Path) Clone() Path {
 }
 
 func (p Path) getValueFromValue(v Value) (Value, error) {
-	switch v.Type {
+	switch v.Type() {
 	case DocumentValue:
 		return p.GetValueFromDocument(v.V().(Document))
 	case ArrayValue:

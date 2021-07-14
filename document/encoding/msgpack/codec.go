@@ -110,7 +110,7 @@ func (e *Encoder) EncodeArray(a document.Array) error {
 // - int64 -> int64
 // - float64 -> float64
 func (e *Encoder) EncodeValue(v document.Value) error {
-	switch v.Type {
+	switch v.Type() {
 	case document.DocumentValue:
 		return e.EncodeDocument(v.V().(document.Document))
 	case document.ArrayValue:
@@ -215,7 +215,7 @@ func (d *Decoder) DecodeValue() (v document.Value, err error) {
 		if err != nil {
 			return
 		}
-		v.Type = document.NullValue
+		v = document.NewNullValue()
 		return
 	case msgpcode.Bin8, msgpcode.Bin16, msgpcode.Bin32:
 		var data []byte

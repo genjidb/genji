@@ -222,7 +222,7 @@ func scanValue(v Value, ref reflect.Value) error {
 		return &ErrUnsupportedType{ref, "parameter is not a valid reference"}
 	}
 
-	if v.Type == NullValue {
+	if v.Type() == NullValue {
 		if ref.Type().Kind() != reflect.Ptr {
 			return nil
 		}
@@ -258,7 +258,7 @@ func scanValue(v Value, ref reflect.Value) error {
 	}
 
 	// Scan nulls as Go zero values.
-	if v.Type == NullValue {
+	if v.Type() == NullValue {
 		ref.Set(reflect.Zero(ref.Type()))
 		return nil
 	}
@@ -304,7 +304,7 @@ func scanValue(v Value, ref reflect.Value) error {
 		ref.SetFloat(v.V().(float64))
 		return nil
 	case reflect.Interface:
-		switch v.Type {
+		switch v.Type() {
 		case DocumentValue:
 			m := make(map[string]interface{})
 			vm := reflect.ValueOf(m)
@@ -328,7 +328,7 @@ func scanValue(v Value, ref reflect.Value) error {
 	// test with supported stdlib types
 	switch ref.Type().String() {
 	case "time.Time":
-		if v.Type == TextValue {
+		if v.Type() == TextValue {
 			parsed, err := time.Parse(time.RFC3339Nano, v.V().(string))
 			if err != nil {
 				return err
@@ -349,10 +349,10 @@ func scanValue(v Value, ref reflect.Value) error {
 		return structScan(v.V().(Document), ref)
 	case reflect.Slice:
 		if ref.Type().Elem().Kind() == reflect.Uint8 {
-			if v.Type != TextValue && v.Type != BlobValue {
-				return stringutil.Errorf("cannot scan value of type %s to byte slice", v.Type)
+			if v.Type() != TextValue && v.Type() != BlobValue {
+				return stringutil.Errorf("cannot scan value of type %s to byte slice", v.Type())
 			}
-			if v.Type == TextValue {
+			if v.Type() == TextValue {
 				ref.SetBytes([]byte(v.V().(string)))
 			} else {
 				ref.SetBytes(v.V().([]byte))
@@ -367,8 +367,8 @@ func scanValue(v Value, ref reflect.Value) error {
 		return sliceScan(v.V().(Array), ref.Addr())
 	case reflect.Array:
 		if ref.Type().Elem().Kind() == reflect.Uint8 {
-			if v.Type != TextValue && v.Type != BlobValue {
-				return stringutil.Errorf("cannot scan value of type %s to byte slice", v.Type)
+			if v.Type() != TextValue && v.Type() != BlobValue {
+				return stringutil.Errorf("cannot scan value of type %s to byte slice", v.Type())
 			}
 			reflect.Copy(ref, reflect.ValueOf(v.V()))
 			return nil

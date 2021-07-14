@@ -227,7 +227,7 @@ func TestCompare(t *testing.T) {
 
 	for _, test := range tests {
 		a, b := test.converter(t, test.a), test.converter(t, test.b)
-		t.Run(fmt.Sprintf("%s/%v%v%v", a.Type.String(), test.a, test.op, test.b), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s/%v%v%v", a.Type().String(), test.a, test.op, test.b), func(t *testing.T) {
 			var ok bool
 			var err error
 

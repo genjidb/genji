@@ -332,7 +332,7 @@ func TestCatalogCreateIndex(t *testing.T) {
 			require.NotNil(t, idx)
 
 			var i int
-			err = idx.AscendGreaterOrEqual(values(document.Value{Type: document.DoubleValue}), func(v, k []byte) error {
+			err = idx.AscendGreaterOrEqual(values(document.NewEmptyValue(document.DoubleValue)), func(v, k []byte) error {
 				var buf bytes.Buffer
 				err = document.NewValueEncoder(&buf).Encode(document.NewDoubleValue(float64(i)))
 				require.NoError(t, err)
@@ -575,7 +575,7 @@ func TestCatalogReIndex(t *testing.T) {
 			require.NoError(t, err)
 
 			var i int
-			err = idx.AscendGreaterOrEqual([]document.Value{{Type: document.DoubleValue}}, func(v, k []byte) error {
+			err = idx.AscendGreaterOrEqual([]document.Value{document.NewEmptyValue(document.DoubleValue)}, func(v, k []byte) error {
 				var buf bytes.Buffer
 				err = document.NewValueEncoder(&buf).Encode(document.NewDoubleValue(float64(i)))
 				require.NoError(t, err)
@@ -670,7 +670,7 @@ func TestReIndexAll(t *testing.T) {
 			require.NoError(t, err)
 
 			var i int
-			err = idx.AscendGreaterOrEqual([]document.Value{{Type: document.DoubleValue}}, func(v, k []byte) error {
+			err = idx.AscendGreaterOrEqual([]document.Value{document.NewEmptyValue(document.DoubleValue)}, func(v, k []byte) error {
 				var buf bytes.Buffer
 				err = document.NewValueEncoder(&buf).Encode(document.NewDoubleValue(float64(i)))
 				require.NoError(t, err)
@@ -686,7 +686,7 @@ func TestReIndexAll(t *testing.T) {
 			require.NoError(t, err)
 
 			i = 0
-			err = idx.AscendGreaterOrEqual([]document.Value{{Type: document.DoubleValue}}, func(v, k []byte) error {
+			err = idx.AscendGreaterOrEqual([]document.Value{document.NewEmptyValue(document.DoubleValue)}, func(v, k []byte) error {
 				var buf bytes.Buffer
 				err = document.NewValueEncoder(&buf).Encode(document.NewDoubleValue(float64(i)))
 				require.NoError(t, err)

@@ -70,35 +70,35 @@ func (v Value) IsLesserThanOrEqual(other Value) (bool, error) {
 func compare(op operator, l, r Value) (bool, error) {
 	switch {
 	// deal with nil
-	case l.Type == NullValue || r.Type == NullValue:
+	case l.Type() == NullValue || r.Type() == NullValue:
 		return compareWithNull(op, l, r), nil
 
 	// compare booleans together
-	case l.Type == BoolValue && r.Type == BoolValue:
+	case l.Type() == BoolValue && r.Type() == BoolValue:
 		return compareBooleans(op, l.V().(bool), r.V().(bool)), nil
 
 	// compare texts together
-	case l.Type == TextValue && r.Type == TextValue:
+	case l.Type() == TextValue && r.Type() == TextValue:
 		return compareTexts(op, l.V().(string), r.V().(string)), nil
 
 	// compare blobs together
-	case r.Type == BlobValue && l.Type == BlobValue:
+	case r.Type() == BlobValue && l.Type() == BlobValue:
 		return compareBlobs(op, l.V().([]byte), r.V().([]byte)), nil
 
 	// compare integers together
-	case l.Type == IntegerValue && r.Type == IntegerValue:
+	case l.Type() == IntegerValue && r.Type() == IntegerValue:
 		return compareIntegers(op, l.V().(int64), r.V().(int64)), nil
 
 	// compare numbers together
-	case l.Type.IsNumber() && r.Type.IsNumber():
+	case l.Type().IsNumber() && r.Type().IsNumber():
 		return compareNumbers(op, l, r), nil
 
 	// compare arrays together
-	case l.Type == ArrayValue && r.Type == ArrayValue:
+	case l.Type() == ArrayValue && r.Type() == ArrayValue:
 		return compareArrays(op, l.V().(Array), r.V().(Array))
 
 	// compare documents together
-	case l.Type == DocumentValue && r.Type == DocumentValue:
+	case l.Type() == DocumentValue && r.Type() == DocumentValue:
 		return compareDocuments(op, l.V().(Document), r.V().(Document))
 	}
 
@@ -108,7 +108,7 @@ func compare(op operator, l, r Value) (bool, error) {
 func compareWithNull(op operator, l, r Value) bool {
 	switch op {
 	case operatorEq, operatorGte, operatorLte:
-		return l.Type == r.Type
+		return l.Type() == r.Type()
 	case operatorGt, operatorLt:
 		return false
 	}
@@ -224,7 +224,7 @@ func compareArrays(op operator, l Array, r Array) (bool, error) {
 		if lerr != nil || rerr != nil {
 			break
 		}
-		if lv.Type == rv.Type || (lv.Type.IsNumber() && rv.Type.IsNumber()) {
+		if lv.Type() == rv.Type() || (lv.Type().IsNumber() && rv.Type().IsNumber()) {
 			isEq, err := compare(operatorEq, lv, rv)
 			if err != nil {
 				return false, err
@@ -240,9 +240,9 @@ func compareArrays(op operator, l Array, r Array) (bool, error) {
 			case operatorEq:
 				return false, nil
 			case operatorGt, operatorGte:
-				return lv.Type > rv.Type, nil
+				return lv.Type() > rv.Type(), nil
 			case operatorLt, operatorLte:
-				return lv.Type < rv.Type, nil
+				return lv.Type() < rv.Type(), nil
 			}
 		}
 	}
@@ -341,7 +341,7 @@ func compareDocuments(op operator, l, r Document) (bool, error) {
 		if lerr != nil || rerr != nil {
 			break
 		}
-		if lv.Type == rv.Type || (lv.Type.IsNumber() && rv.Type.IsNumber()) {
+		if lv.Type() == rv.Type() || (lv.Type().IsNumber() && rv.Type().IsNumber()) {
 			isEq, err := compare(operatorEq, lv, rv)
 			if err != nil {
 				return false, err
@@ -357,9 +357,9 @@ func compareDocuments(op operator, l, r Document) (bool, error) {
 			case operatorEq:
 				return false, nil
 			case operatorGt, operatorGte:
-				return lv.Type > rv.Type, nil
+				return lv.Type() > rv.Type(), nil
 			case operatorLt, operatorLte:
-				return lv.Type < rv.Type, nil
+				return lv.Type() < rv.Type(), nil
 			}
 		}
 	}

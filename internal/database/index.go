@@ -62,7 +62,7 @@ func (e *indexValueEncoder) EncodeValue(v document.Value) error {
 	// if the index has no type constraint, encode the value with its type
 	if e.typ.IsAny() {
 		// prepend with the type
-		_, err := e.w.Write([]byte{byte(v.Type)})
+		_, err := e.w.Write([]byte{byte(v.Type())})
 		if err != nil {
 			return err
 		}
@@ -83,9 +83,9 @@ func (e *indexValueEncoder) EncodeValue(v document.Value) error {
 		return nil
 	}
 
-	if v.Type != e.typ {
-		if v.Type.IsAny() {
-			v.Type = e.typ
+	if v.Type() != e.typ {
+		if v.Type().IsAny() {
+			v = document.NewEmptyValue(e.typ)
 		} else {
 			// this should never happen, but if it does, something is very wrong
 			panic("incompatible index type")
@@ -141,8 +141,8 @@ func (idx *Index) Set(vs []document.Value, k []byte) error {
 	}
 
 	for i, typ := range idx.Info.Types {
-		if !typ.IsAny() && typ != vs[i].Type {
-			return stringutil.Errorf("cannot index value of type %s in %s index", vs[i].Type, typ)
+		if !typ.IsAny() && typ != vs[i].Type() {
+			return stringutil.Errorf("cannot index value of type %s in %s index", vs[i].Type(), typ)
 		}
 	}
 
@@ -291,7 +291,7 @@ func (pivot Pivot) validate(idx *Index) {
 func (pivot Pivot) IsAny() bool {
 	res := true
 	for _, p := range pivot {
-		res = res && p.Type.IsAny() && p.V() == nil
+		res = res && p.Type().IsAny() && p.V() == nil
 		if !res {
 			break
 		}
@@ -345,7 +345,7 @@ func (idx *Index) iterateOnStore(pivot Pivot, reverse bool, fn func(val, key []b
 
 	// If index and pivot values are typed but not of the same type, return no results.
 	for i, pv := range pivot {
-		if !pv.Type.IsAny() && !idx.Info.Types[i].IsAny() && pv.Type != idx.Info.Types[i] {
+		if !pv.Type().IsAny() && !idx.Info.Types[i].IsAny() && pv.Type() != idx.Info.Types[i] {
 			return nil
 		}
 	}
@@ -457,8 +457,8 @@ func (idx *Index) buildSeek(pivot Pivot, reverse bool) ([]byte, error) {
 
 	// if the index is without type and the first pivot is valueless but typed, iterate but filter out the types we don't want,
 	// but just for the first pivot; subsequent pivot values cannot be filtered this way.
-	if idx.Info.Types[0].IsAny() && !pivot[0].Type.IsAny() && pivot[0].V() == nil {
-		seek = []byte{byte(pivot[0].Type)}
+	if idx.Info.Types[0].IsAny() && !pivot[0].Type().IsAny() && pivot[0].V() == nil {
+		seek = []byte{byte(pivot[0].Type())}
 
 		if reverse {
 			seek = append(seek, 0xFF)
@@ -496,7 +496,7 @@ func (idx *Index) iterate(st engine.Store, pivot Pivot, reverse bool, fn func(it
 		itm := it.Item()
 
 		// If index is untyped and pivot first element is typed, only iterate on values with the same type as the first pivot
-		if len(pivot) > 0 && idx.Info.Types[0].IsAny() && !pivot[0].Type.IsAny() && itm.Key()[0] != byte(pivot[0].Type) {
+		if len(pivot) > 0 && idx.Info.Types[0].IsAny() && !pivot[0].Type().IsAny() && itm.Key()[0] != byte(pivot[0].Type()) {
 			return nil
 		}
 

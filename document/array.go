@@ -130,7 +130,7 @@ func (vb *ValueBuffer) Copy(a Array) error {
 	}
 
 	for i, v := range vb.Values {
-		switch v.Type {
+		switch v.Type() {
 		case DocumentValue:
 			var buf FieldBuffer
 			err = buf.Copy(v.V().(Document))
@@ -166,7 +166,7 @@ func (vb *ValueBuffer) Apply(fn func(p Path, v Value) (Value, error)) error {
 	for i, v := range vb.Values {
 		path[0].ArrayIndex = i
 
-		switch v.Type {
+		switch v.Type() {
 		case DocumentValue:
 			buf, ok := v.V().(*FieldBuffer)
 			if !ok {
@@ -254,7 +254,7 @@ func (vb *ValueBuffer) Types() []ValueType {
 	types := make([]ValueType, len(vb.Values))
 
 	for i, v := range vb.Values {
-		types[i] = v.Type
+		types[i] = v.Type()
 	}
 
 	return types
@@ -304,7 +304,7 @@ func (a *sortableArray) Swap(i, j int) {
 }
 
 func (a *sortableArray) Less(i, j int) (ok bool) {
-	it, jt := a.vb.Values[i].Type, a.vb.Values[j].Type
+	it, jt := a.vb.Values[i].Type(), a.vb.Values[j].Type()
 	if it == jt || (it.IsNumber() && jt.IsNumber()) {
 		ok, a.err = a.vb.Values[i].IsLesserThan(a.vb.Values[j])
 		return

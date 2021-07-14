@@ -22,7 +22,7 @@ func newCmpOp(a, b Expr, t scanner.Token) *cmpOp {
 // Comparing with NULL always evaluates to NULL.
 func (op *cmpOp) Eval(env *environment.Environment) (document.Value, error) {
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
-		if a.Type == document.NullValue || b.Type == document.NullValue {
+		if a.Type() == document.NullValue || b.Type() == document.NullValue {
 			return NullLiteral, nil
 		}
 
@@ -104,7 +104,7 @@ func (op *BetweenOperator) Eval(env *environment.Environment) (document.Value, e
 	}
 
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
-		if a.Type == document.NullValue || b.Type == document.NullValue {
+		if a.Type() == document.NullValue || b.Type() == document.NullValue {
 			return NullLiteral, nil
 		}
 
@@ -148,11 +148,11 @@ func In(a, b Expr) Expr {
 
 func (op *InOperator) Eval(env *environment.Environment) (document.Value, error) {
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
-		if a.Type == document.NullValue || b.Type == document.NullValue {
+		if a.Type() == document.NullValue || b.Type() == document.NullValue {
 			return NullLiteral, nil
 		}
 
-		if b.Type != document.ArrayValue {
+		if b.Type() != document.ArrayValue {
 			return FalseLiteral, nil
 		}
 

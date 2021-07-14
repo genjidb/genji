@@ -44,12 +44,12 @@ func (ve *ValueEncoder) Encode(v Value) error {
 }
 
 func (ve *ValueEncoder) appendValue(v Value) error {
-	err := ve.append(byte(v.Type))
+	err := ve.append(byte(v.Type()))
 	if err != nil {
 		return err
 	}
 
-	switch v.Type {
+	switch v.Type() {
 	case NullValue:
 		return nil
 	case ArrayValue:
@@ -60,7 +60,7 @@ func (ve *ValueEncoder) appendValue(v Value) error {
 
 	ve.buf = ve.buf[:0]
 
-	switch v.Type {
+	switch v.Type() {
 	case BlobValue:
 		ve.buf, err = binarysort.AppendBase64(ve.buf, v.V().([]byte))
 	case TextValue:
@@ -73,7 +73,7 @@ func (ve *ValueEncoder) appendValue(v Value) error {
 	case DoubleValue:
 		ve.buf = binarysort.AppendFloat64(ve.buf, v.V().(float64))
 	default:
-		return errors.New("cannot encode type " + v.Type.String() + " as key")
+		return errors.New("cannot encode type " + v.Type().String() + " as key")
 	}
 	if err != nil {
 		return err

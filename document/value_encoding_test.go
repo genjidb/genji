@@ -148,7 +148,7 @@ func TestValueBinaryMarshaling(t *testing.T) {
 			b, err := test.v.MarshalBinary()
 			require.NoError(t, err)
 
-			got := Value{Type: test.v.Type}
+			got := NewEmptyValue(test.v.Type())
 			err = got.UnmarshalBinary(b)
 			require.NoError(t, err)
 			require.Equal(t, test.v, got)
@@ -157,9 +157,9 @@ func TestValueBinaryMarshaling(t *testing.T) {
 }
 
 // UnmarshalBinary decodes data to v. Data must not contain type information,
-// instead, v.Type must be set.
+// instead, v.Type() must be set.
 func (v *Value) UnmarshalBinary(data []byte) error {
-	switch v.Type {
+	switch v.Type() {
 	case NullValue:
 	case BlobValue:
 		v.v = data

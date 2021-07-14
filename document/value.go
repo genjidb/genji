@@ -89,7 +89,7 @@ func (t ValueType) IsAny() bool {
 }
 
 type Val interface {
-	Type() ValueType
+	tp() ValueType
 	v() interface{}
 	IsZeroValue() (bool, error)
 	Append([]byte) ([]byte, error)
@@ -99,22 +99,22 @@ type Val interface {
 
 // A Value stores encoded data alongside its type.
 type Value struct {
-	Type ValueType
-	v    interface{}
+	tp ValueType
+	v  interface{}
 }
 
 // NewNullValue returns a Null value.
 func NewNullValue() Value {
 	return Value{
-		Type: NullValue,
+		tp: NullValue,
 	}
 }
 
 // NewBoolValue encodes x and returns a value.
 func NewBoolValue(x bool) Value {
 	return Value{
-		Type: BoolValue,
-		v:    x,
+		tp: BoolValue,
+		v:  x,
 	}
 }
 
@@ -122,48 +122,64 @@ func NewBoolValue(x bool) Value {
 // magnitude of x.
 func NewIntegerValue(x int64) Value {
 	return Value{
-		Type: IntegerValue,
-		v:    int64(x),
+		tp: IntegerValue,
+		v:  int64(x),
 	}
 }
 
 // NewDoubleValue encodes x and returns a value.
 func NewDoubleValue(x float64) Value {
 	return Value{
-		Type: DoubleValue,
-		v:    x,
+		tp: DoubleValue,
+		v:  x,
 	}
 }
 
 // NewBlobValue encodes x and returns a value.
 func NewBlobValue(x []byte) Value {
 	return Value{
-		Type: BlobValue,
-		v:    x,
+		tp: BlobValue,
+		v:  x,
 	}
 }
 
 // NewTextValue encodes x and returns a value.
 func NewTextValue(x string) Value {
 	return Value{
-		Type: TextValue,
-		v:    x,
+		tp: TextValue,
+		v:  x,
 	}
 }
 
 // NewArrayValue returns a value of type Array.
 func NewArrayValue(a Array) Value {
 	return Value{
-		Type: ArrayValue,
-		v:    a,
+		tp: ArrayValue,
+		v:  a,
 	}
 }
 
 // NewDocumentValue returns a value of type Document.
 func NewDocumentValue(d Document) Value {
 	return Value{
-		Type: DocumentValue,
-		v:    d,
+		tp: DocumentValue,
+		v:  d,
+	}
+}
+
+// NewEmptyValue creates an empty value with the given type.
+// V() always returns nil.
+func NewEmptyValue(t ValueType) Value {
+	return Value{
+		tp: t,
+	}
+}
+
+// NewValueWith creates a value with the given type and value.
+func NewValueWith(t ValueType, v interface{}) Value {
+	return Value{
+		tp: t,
+		v:  v,
 	}
 }
 
@@ -171,9 +187,13 @@ func (v Value) V() interface{} {
 	return v.v
 }
 
+func (v Value) Type() ValueType {
+	return v.tp
+}
+
 // IsTruthy returns whether v is not equal to the zero value of its type.
 func (v Value) IsTruthy() (bool, error) {
-	if v.Type == NullValue {
+	if v.tp == NullValue {
 		return false, nil
 	}
 
@@ -184,7 +204,7 @@ func (v Value) IsTruthy() (bool, error) {
 // IsZeroValue indicates if the value data is the zero value for the value type.
 // This function doesn't perform any allocation.
 func (v Value) IsZeroValue() (bool, error) {
-	switch v.Type {
+	switch v.tp {
 	case BoolValue:
 		return v.v == false, nil
 	case IntegerValue:
@@ -228,7 +248,7 @@ func (v Value) IsZeroValue() (bool, error) {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (v Value) MarshalJSON() ([]byte, error) {
-	switch v.Type {
+	switch v.tp {
 	case NullValue:
 		return []byte("null"), nil
 	case BoolValue:
@@ -264,13 +284,13 @@ func (v Value) MarshalJSON() ([]byte, error) {
 	case DocumentValue:
 		return jsonDocument{v.v.(Document)}.MarshalJSON()
 	default:
-		return nil, stringutil.Errorf("unexpected type: %d", v.Type)
+		return nil, stringutil.Errorf("unexpected type: %d", v.tp)
 	}
 }
 
 // String returns a string representation of the value. It implements the fmt.Stringer interface.
 func (v Value) String() string {
-	switch v.Type {
+	switch v.tp {
 	case NullValue:
 		return "NULL"
 	case TextValue:
@@ -286,7 +306,7 @@ func (v Value) String() string {
 // Append appends to buf a binary representation of v.
 // The encoded value doesn't include type information.
 func (v Value) Append(buf []byte) ([]byte, error) {
-	switch v.Type {
+	switch v.tp {
 	case BlobValue:
 		return append(buf, v.v.([]byte)...), nil
 	case TextValue:
@@ -315,7 +335,7 @@ func (v Value) Append(buf []byte) ([]byte, error) {
 		return buf.Bytes(), nil
 	}
 
-	return nil, errors.New("cannot encode type " + v.Type.String() + " as key")
+	return nil, errors.New("cannot encode type " + v.tp.String() + " as key")
 }
 
 // MarshalBinary returns a binary representation of v.
@@ -378,16 +398,16 @@ func (v Value) BitwiseXor(u Value) (res Value, err error) {
 }
 
 func calculateValues(a, b Value, operator byte) (res Value, err error) {
-	if a.Type == NullValue || b.Type == NullValue {
+	if a.tp == NullValue || b.tp == NullValue {
 		return NewNullValue(), nil
 	}
 
-	if a.Type == BoolValue || b.Type == BoolValue {
+	if a.tp == BoolValue || b.tp == BoolValue {
 		return NewNullValue(), nil
 	}
 
-	if a.Type.IsNumber() && b.Type.IsNumber() {
-		if a.Type == DoubleValue || b.Type == DoubleValue {
+	if a.tp.IsNumber() && b.tp.IsNumber() {
+		if a.tp == DoubleValue || b.tp == DoubleValue {
 			return calculateFloats(a, b, operator)
 		}
 

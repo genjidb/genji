@@ -74,7 +74,7 @@ func (op *ExprsOperator) Iterate(in *environment.Environment, fn func(out *envir
 		if err != nil {
 			return err
 		}
-		if v.Type != document.DocumentValue {
+		if v.Type() != document.DocumentValue {
 			return ErrInvalidResult
 		}
 
@@ -235,7 +235,7 @@ func (it *PkScanOperator) Iterate(in *environment.Environment, fn func(out *envi
 		}
 
 		var encEnd []byte
-		if !end.Type.IsAny() && end.V() != nil {
+		if !end.Type().IsAny() && end.V() != nil {
 			encEnd, err = table.EncodeValue(end)
 			if err != nil {
 				return err

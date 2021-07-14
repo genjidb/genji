@@ -329,7 +329,7 @@ func (f FieldConstraints) ValidateDocument(tx *Transaction, d document.Document)
 			// if field is found, it has already been converted
 			// to the right type above.
 			// check if it is required but null.
-			if v.Type == document.NullValue {
+			if v.Type() == document.NullValue {
 				return nil, &ConstraintViolationError{"NOT NULL", fc.Path}
 			}
 
@@ -362,7 +362,7 @@ type ConversionFunc func(v document.Value, path document.Path, targetType docume
 func CastConversion(v document.Value, path document.Path, targetType document.ValueType) (document.Value, error) {
 	newV, err := v.CastAs(targetType)
 	if err != nil {
-		return v, stringutil.Errorf("field %q must be of type %q, got %q", path, targetType, v.Type)
+		return v, stringutil.Errorf("field %q must be of type %q, got %q", path, targetType, v.Type())
 	}
 
 	return newV, nil
@@ -371,7 +371,7 @@ func CastConversion(v document.Value, path document.Path, targetType document.Va
 // ConvertValueAtPath converts the value using the field constraints that are applicable
 // at the given path.
 func (f FieldConstraints) ConvertValueAtPath(path document.Path, v document.Value, conversionFn ConversionFunc) (document.Value, error) {
-	switch v.Type {
+	switch v.Type() {
 	case document.ArrayValue:
 		vb, err := f.convertArrayAtPath(path, v.V().(document.Array), conversionFn)
 		return document.NewArrayValue(vb), err
@@ -406,7 +406,7 @@ func (f FieldConstraints) convertScalarAtPath(path document.Path, v document.Val
 
 	// no constraint have been found for this path.
 	// check if this is an integer and convert it to double.
-	if v.Type == document.IntegerValue {
+	if v.Type() == document.IntegerValue {
 		newV, _ := v.CastAsDouble()
 		return newV, nil
 	}

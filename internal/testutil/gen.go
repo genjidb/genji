@@ -48,16 +48,16 @@ type val struct {
 func transformV(v document.Value) val {
 	var vi interface{}
 
-	if v.Type == document.DocumentValue {
+	if v.Type() == document.DocumentValue {
 		vi = transformDoc(v.V().(document.Document))
-	} else if v.Type == document.ArrayValue {
+	} else if v.Type() == document.ArrayValue {
 		vi = transformArray(v.V().(document.Array))
 	} else {
 		vi = v.String()
 	}
 
 	return val{
-		Type: v.Type.String(),
+		Type: v.Type().String(),
 		V:    vi,
 	}
 }

@@ -95,7 +95,7 @@ func (op *MapOperator) Iterate(in *environment.Environment, f func(out *environm
 			return err
 		}
 
-		if v.Type != document.DocumentValue {
+		if v.Type() != document.DocumentValue {
 			return ErrInvalidResult
 		}
 

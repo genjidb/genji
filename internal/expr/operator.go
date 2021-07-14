@@ -112,7 +112,7 @@ func Concat(a, b Expr) Expr {
 
 func (op *ConcatOperator) Eval(env *environment.Environment) (document.Value, error) {
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
-		if a.Type != document.TextValue || b.Type != document.TextValue {
+		if a.Type() != document.TextValue || b.Type() != document.TextValue {
 			return NullLiteral, nil
 		}
 

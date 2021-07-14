@@ -39,8 +39,8 @@ func (stmt *DeleteStmt) ToStream() (*StreamStmt, error) {
 			return nil, err
 		}
 
-		if !v.Type.IsNumber() {
-			return nil, stringutil.Errorf("offset expression must evaluate to a number, got %q", v.Type)
+		if !v.Type().IsNumber() {
+			return nil, stringutil.Errorf("offset expression must evaluate to a number, got %q", v.Type())
 		}
 
 		v, err = v.CastAsInteger()
@@ -57,8 +57,8 @@ func (stmt *DeleteStmt) ToStream() (*StreamStmt, error) {
 			return nil, err
 		}
 
-		if !v.Type.IsNumber() {
-			return nil, stringutil.Errorf("limit expression must evaluate to a number, got %q", v.Type)
+		if !v.Type().IsNumber() {
+			return nil, stringutil.Errorf("limit expression must evaluate to a number, got %q", v.Type())
 		}
 
 		v, err = v.CastAsInteger()
