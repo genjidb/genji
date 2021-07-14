@@ -366,38 +366,38 @@ func TestNewFromStruct(t *testing.T) {
 		err = doc.Iterate(func(f string, v document.Value) error {
 			switch counter {
 			case 0:
-				require.Equal(t, u.A, v.V.([]byte))
+				require.Equal(t, u.A, v.V().([]byte))
 			case 1:
-				require.Equal(t, u.B, v.V.(string))
+				require.Equal(t, u.B, v.V().(string))
 			case 2:
-				require.Equal(t, u.C, v.V.(bool))
+				require.Equal(t, u.C, v.V().(bool))
 			case 3:
 				require.Equal(t, "la-reponse-d", f)
-				require.EqualValues(t, u.D, v.V.(int64))
+				require.EqualValues(t, u.D, v.V().(int64))
 			case 4:
-				require.EqualValues(t, u.E, v.V.(int64))
+				require.EqualValues(t, u.E, v.V().(int64))
 			case 5:
-				require.EqualValues(t, u.F, v.V.(int64))
+				require.EqualValues(t, u.F, v.V().(int64))
 			case 6:
-				require.EqualValues(t, u.G, v.V.(int64))
+				require.EqualValues(t, u.G, v.V().(int64))
 			case 7:
-				require.EqualValues(t, u.H, v.V.(int64))
+				require.EqualValues(t, u.H, v.V().(int64))
 			case 8:
-				require.EqualValues(t, u.I, v.V.(int64))
+				require.EqualValues(t, u.I, v.V().(int64))
 			case 9:
-				require.EqualValues(t, u.J, v.V.(int64))
+				require.EqualValues(t, u.J, v.V().(int64))
 			case 10:
-				require.EqualValues(t, u.K, v.V.(int64))
+				require.EqualValues(t, u.K, v.V().(int64))
 			case 11:
-				require.EqualValues(t, u.L, v.V.(int64))
+				require.EqualValues(t, u.L, v.V().(int64))
 			case 12:
-				require.EqualValues(t, u.M, v.V.(int64))
+				require.EqualValues(t, u.M, v.V().(int64))
 			case 13:
-				require.Equal(t, u.N, v.V.(float64))
+				require.Equal(t, u.N, v.V().(float64))
 			case 14:
 				require.EqualValues(t, document.DocumentValue, v.Type)
 			case 15:
-				require.EqualValues(t, *u.Q, v.V.(int64))
+				require.EqualValues(t, *u.Q, v.V().(int64))
 			case 16:
 				require.EqualValues(t, document.DocumentValue, v.Type)
 			case 17:
@@ -413,7 +413,7 @@ func TestNewFromStruct(t *testing.T) {
 			case 22:
 				require.EqualValues(t, document.ArrayValue, v.Type)
 			case 23:
-				require.EqualValues(t, u.Z, v.V.(int64))
+				require.EqualValues(t, u.Z, v.V().(int64))
 			case 24:
 				require.EqualValues(t, document.NullValue, v.Type)
 			case 25:
@@ -438,67 +438,67 @@ func TestNewFromStruct(t *testing.T) {
 
 		v, err := doc.GetByField("a")
 		require.NoError(t, err)
-		require.Equal(t, u.A, v.V.([]byte))
+		require.Equal(t, u.A, v.V().([]byte))
 		v, err = doc.GetByField("b")
 		require.NoError(t, err)
-		require.Equal(t, u.B, v.V.(string))
+		require.Equal(t, u.B, v.V().(string))
 		v, err = doc.GetByField("c")
 		require.NoError(t, err)
-		require.Equal(t, u.C, v.V.(bool))
+		require.Equal(t, u.C, v.V().(bool))
 		v, err = doc.GetByField("la-reponse-d")
 		require.NoError(t, err)
-		require.EqualValues(t, u.D, v.V.(int64))
+		require.EqualValues(t, u.D, v.V().(int64))
 		v, err = doc.GetByField("e")
 		require.NoError(t, err)
-		require.EqualValues(t, u.E, v.V.(int64))
+		require.EqualValues(t, u.E, v.V().(int64))
 		v, err = doc.GetByField("f")
 		require.NoError(t, err)
-		require.EqualValues(t, u.F, v.V.(int64))
+		require.EqualValues(t, u.F, v.V().(int64))
 		v, err = doc.GetByField("g")
 		require.NoError(t, err)
-		require.EqualValues(t, u.G, v.V.(int64))
+		require.EqualValues(t, u.G, v.V().(int64))
 		v, err = doc.GetByField("h")
 		require.NoError(t, err)
-		require.EqualValues(t, u.H, v.V.(int64))
+		require.EqualValues(t, u.H, v.V().(int64))
 		v, err = doc.GetByField("i")
 		require.NoError(t, err)
-		require.EqualValues(t, u.I, v.V.(int64))
+		require.EqualValues(t, u.I, v.V().(int64))
 		v, err = doc.GetByField("j")
 		require.NoError(t, err)
-		require.EqualValues(t, u.J, v.V.(int64))
+		require.EqualValues(t, u.J, v.V().(int64))
 		v, err = doc.GetByField("k")
 		require.NoError(t, err)
-		require.EqualValues(t, u.K, v.V.(int64))
+		require.EqualValues(t, u.K, v.V().(int64))
 		v, err = doc.GetByField("l")
 		require.NoError(t, err)
-		require.EqualValues(t, u.L, v.V.(int64))
+		require.EqualValues(t, u.L, v.V().(int64))
 		v, err = doc.GetByField("m")
 		require.NoError(t, err)
-		require.EqualValues(t, u.M, v.V.(int64))
+		require.EqualValues(t, u.M, v.V().(int64))
 		v, err = doc.GetByField("n")
 		require.NoError(t, err)
-		require.Equal(t, u.N, v.V.(float64))
+		require.Equal(t, u.N, v.V().(float64))
 
 		v, err = doc.GetByField("o")
 		require.NoError(t, err)
-		d, ok := v.V.(document.Document)
+		d, ok := v.V().(document.Document)
 		require.True(t, ok)
 		v, err = d.GetByField("ig")
 		require.NoError(t, err)
-		require.EqualValues(t, 0, v.V.(int64))
+		require.EqualValues(t, 0, v.V().(int64))
 
 		v, err = doc.GetByField("ig")
 		require.NoError(t, err)
-		require.EqualValues(t, 100, v.V.(int64))
+		require.EqualValues(t, 100, v.V().(int64))
 
 		v, err = doc.GetByField("t")
 		require.NoError(t, err)
-		a, ok := v.V.(document.Array)
+		a, ok := v.V().(document.Array)
 		require.True(t, ok)
 		var count int
 		err = a.Iterate(func(i int, v document.Value) error {
 			count++
-			require.EqualValues(t, i+1, v.V.(int64))
+			require.EqualValues(t, i+1, v.V().(int64))
 			return nil
 		})
 		require.NoError(t, err)
@@ -507,7 +507,7 @@ func TestNewFromStruct(t *testing.T) {
 		require.Equal(t, err, document.ErrFieldNotFound)
 		v, err = a.GetByIndex(1)
 		require.NoError(t, err)
-		require.EqualValues(t, 2, v.V.(int64))
+		require.EqualValues(t, 2, v.V().(int64))
 
 		v, err = doc.GetByField("bb")
 		require.NoError(t, err)

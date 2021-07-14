@@ -435,7 +435,7 @@ func (t *Table) encodeValueToKey(info *TableInfo, v document.Value) ([]byte, err
 			return nil, err
 		}
 
-		docid := uint64(v.V.(int64))
+		docid := uint64(v.V().(int64))
 
 		buf := make([]byte, binary.MaxVarintLen64)
 		n := binary.PutUvarint(buf, docid)
@@ -491,7 +491,7 @@ func (t *Table) iterate(pivot document.Value, reverse bool, fn func(d document.D
 	var seek []byte
 
 	// if there is a pivot, convert it to the right type
-	if !pivot.Type.IsAny() && pivot.V != nil {
+	if !pivot.Type.IsAny() && pivot.V() != nil {
 		var err error
 		seek, err = t.encodeValueToKey(t.Info, pivot)
 		if err != nil {

@@ -112,24 +112,24 @@ func (e *Encoder) EncodeArray(a document.Array) error {
 func (e *Encoder) EncodeValue(v document.Value) error {
 	switch v.Type {
 	case document.DocumentValue:
-		return e.EncodeDocument(v.V.(document.Document))
+		return e.EncodeDocument(v.V().(document.Document))
 	case document.ArrayValue:
-		return e.EncodeArray(v.V.(document.Array))
+		return e.EncodeArray(v.V().(document.Array))
 	case document.NullValue:
 		return e.enc.EncodeNil()
 	case document.TextValue:
-		return e.enc.EncodeString(v.V.(string))
+		return e.enc.EncodeString(v.V().(string))
 	case document.BlobValue:
-		return e.enc.EncodeBytes(v.V.([]byte))
+		return e.enc.EncodeBytes(v.V().([]byte))
 	case document.BoolValue:
-		return e.enc.EncodeBool(v.V.(bool))
+		return e.enc.EncodeBool(v.V().(bool))
 	case document.IntegerValue:
-		return e.enc.EncodeInt(v.V.(int64))
+		return e.enc.EncodeInt(v.V().(int64))
 	case document.DoubleValue:
-		return e.enc.EncodeFloat64(v.V.(float64))
+		return e.enc.EncodeFloat64(v.V().(float64))
 	}
 
-	return e.enc.Encode(v.V)
+	return e.enc.Encode(v.V())
 }
 
 // Close puts the encoder into the pool for reuse.
@@ -198,12 +198,13 @@ func (d *Decoder) DecodeValue() (v document.Value, err error) {
 	// decode fixnum (the msgpack size optimization to encode low value integers)
 	// https://github.com/msgpack/msgpack/blob/master/spec.md#int-format-family
 	if msgpcode.IsFixedNum(c) {
-		v.V, err = d.dec.DecodeInt64()
+		var data int64
+		data, err = d.dec.DecodeInt64()
 		if err != nil {
 			return
 		}
 
-		v.Type = document.IntegerValue
+		v = document.NewIntegerValue(data)
 		return
 	}
 
@@ -217,32 +218,36 @@ func (d *Decoder) DecodeValue() (v document.Value, err error) {
 		v.Type = document.NullValue
 		return
 	case msgpcode.Bin8, msgpcode.Bin16, msgpcode.Bin32:
-		v.V, err = d.dec.DecodeBytes()
+		var data []byte
+		data, err = d.dec.DecodeBytes()
 		if err != nil {
 			return
 		}
-		v.Type = document.BlobValue
+		v = document.NewBlobValue(data)
 		return
 	case msgpcode.True, msgpcode.False:
-		v.V, err = d.dec.DecodeBool()
+		var data bool
+		data, err = d.dec.DecodeBool()
 		if err != nil {
 			return
 		}
-		v.Type = document.BoolValue
+		v = document.NewBoolValue(data)
 		return
 	case msgpcode.Int8, msgpcode.Int16, msgpcode.Int32, msgpcode.Int64, msgpcode.Uint8, msgpcode.Uint16, msgpcode.Uint32, msgpcode.Uint64:
-		v.V, err = d.dec.DecodeInt64()
+		var data int64
+		data, err = d.dec.DecodeInt64()
 		if err != nil {
 			return
 		}
-		v.Type = document.IntegerValue
+		v = document.NewIntegerValue(data)
 		return
 	case msgpcode.Double:
-		v.V, err = d.dec.DecodeFloat64()
+		var data float64
+		data, err = d.dec.DecodeFloat64()
 		if err != nil {
 			return
 		}
-		v.Type = document.DoubleValue
+		v = document.NewDoubleValue(data)
 		return
 	}
 

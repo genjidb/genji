@@ -170,7 +170,7 @@ func newGroupAggregator(outerEnv *environment.Environment, builders []expr.Aggre
 	}
 
 	groupExprValue, _ := outerEnv.Get(document.NewPath(groupExprEnvKey))
-	ga.groupExpr = groupExprValue.V.(string)
+	ga.groupExpr = groupExprValue.V().(string)
 
 	return &ga
 }

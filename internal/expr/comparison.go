@@ -156,7 +156,7 @@ func (op *InOperator) Eval(env *environment.Environment) (document.Value, error)
 			return FalseLiteral, nil
 		}
 
-		ok, err := document.ArrayContains(b.V.(document.Array), a)
+		ok, err := document.ArrayContains(b.V().(document.Array), a)
 		if err != nil {
 			return NullLiteral, err
 		}

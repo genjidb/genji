@@ -44,7 +44,7 @@ func tableInfoFromDocument(d document.Document) (*database.TableInfo, error) {
 		return nil, err
 	}
 
-	stmt, err := parser.NewParser(strings.NewReader(s.V.(string))).ParseStatement()
+	stmt, err := parser.NewParser(strings.NewReader(s.V().(string))).ParseStatement()
 	if err != nil {
 		return nil, err
 	}
@@ -55,14 +55,14 @@ func tableInfoFromDocument(d document.Document) (*database.TableInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	ti.StoreName = v.V.([]byte)
+	ti.StoreName = v.V().([]byte)
 
 	v, err = d.GetByField("docid_sequence_name")
 	if err != nil && err != document.ErrFieldNotFound {
 		return nil, err
 	}
 	if err == nil {
-		ti.DocidSequenceName = v.V.(string)
+		ti.DocidSequenceName = v.V().(string)
 	}
 
 	return &ti, nil
@@ -88,7 +88,7 @@ func indexInfoFromDocument(d document.Document) (*database.IndexInfo, error) {
 		return nil, err
 	}
 
-	stmt, err := parser.NewParser(strings.NewReader(s.V.(string))).ParseStatement()
+	stmt, err := parser.NewParser(strings.NewReader(s.V().(string))).ParseStatement()
 	if err != nil {
 		return nil, err
 	}
@@ -99,14 +99,14 @@ func indexInfoFromDocument(d document.Document) (*database.IndexInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	i.StoreName = v.V.([]byte)
+	i.StoreName = v.V().([]byte)
 
 	v, err = d.GetByField("owner")
 	if err != nil && err != document.ErrFieldNotFound {
 		return nil, err
 	}
 	if err == nil {
-		owner, err := ownerFromDocument(v.V.(document.Document))
+		owner, err := ownerFromDocument(v.V().(document.Document))
 		if err != nil {
 			return nil, err
 		}
@@ -140,7 +140,7 @@ func sequenceInfoFromDocument(d document.Document) (*database.SequenceInfo, erro
 		return nil, err
 	}
 
-	stmt, err := parser.NewParser(strings.NewReader(s.V.(string))).ParseStatement()
+	stmt, err := parser.NewParser(strings.NewReader(s.V().(string))).ParseStatement()
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func sequenceInfoFromDocument(d document.Document) (*database.SequenceInfo, erro
 		return nil, err
 	}
 	if err == nil {
-		owner, err := ownerFromDocument(v.V.(document.Document))
+		owner, err := ownerFromDocument(v.V().(document.Document))
 		if err != nil {
 			return nil, err
 		}
@@ -179,14 +179,14 @@ func ownerFromDocument(d document.Document) (*database.Owner, error) {
 		return nil, err
 	}
 
-	owner.TableName = v.V.(string)
+	owner.TableName = v.V().(string)
 
 	v, err = d.GetByField("path")
 	if err != nil && err != document.ErrFieldNotFound {
 		return nil, err
 	}
 	if err == nil {
-		owner.Path, err = parser.ParsePath(v.V.(string))
+		owner.Path, err = parser.ParsePath(v.V().(string))
 		if err != nil {
 			return nil, err
 		}
@@ -271,7 +271,7 @@ func (s *CatalogTable) Load(tx *database.Transaction) (tables []database.TableIn
 			return err
 		}
 
-		switch tp.V.(string) {
+		switch tp.V().(string) {
 		case RelationTableType:
 			ti, err := tableInfoFromDocument(d)
 			if err != nil {

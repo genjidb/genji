@@ -48,7 +48,7 @@ func (stmt *DeleteStmt) ToStream() (*StreamStmt, error) {
 			return nil, err
 		}
 
-		s = s.Pipe(stream.Skip(v.V.(int64)))
+		s = s.Pipe(stream.Skip(v.V().(int64)))
 	}
 
 	if stmt.LimitExpr != nil {
@@ -66,7 +66,7 @@ func (stmt *DeleteStmt) ToStream() (*StreamStmt, error) {
 			return nil, err
 		}
 
-		s = s.Pipe(stream.Take(v.V.(int64)))
+		s = s.Pipe(stream.Take(v.V().(int64)))
 	}
 
 	s = s.Pipe(stream.TableDelete(stmt.TableName))

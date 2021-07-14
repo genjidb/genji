@@ -48,11 +48,11 @@ func (v Value) CastAsBool() (Value, error) {
 	case BoolValue:
 		return v, nil
 	case IntegerValue:
-		return NewBoolValue(v.V.(int64) != 0), nil
+		return NewBoolValue(v.V().(int64) != 0), nil
 	case TextValue:
-		b, err := strconv.ParseBool(v.V.(string))
+		b, err := strconv.ParseBool(v.V().(string))
 		if err != nil {
-			return Value{}, stringutil.Errorf(`cannot cast %q as bool: %w`, v.V, err)
+			return Value{}, stringutil.Errorf(`cannot cast %q as bool: %w`, v.V(), err)
 		}
 		return NewBoolValue(b), nil
 	}
@@ -73,19 +73,19 @@ func (v Value) CastAsInteger() (Value, error) {
 	case IntegerValue:
 		return v, nil
 	case BoolValue:
-		if v.V.(bool) {
+		if v.V().(bool) {
 			return NewIntegerValue(1), nil
 		}
 		return NewIntegerValue(0), nil
 	case DoubleValue:
-		return NewIntegerValue(int64(v.V.(float64))), nil
+		return NewIntegerValue(int64(v.V().(float64))), nil
 	case TextValue:
-		i, err := strconv.ParseInt(v.V.(string), 10, 64)
+		i, err := strconv.ParseInt(v.V().(string), 10, 64)
 		if err != nil {
 			intErr := err
-			f, err := strconv.ParseFloat(v.V.(string), 64)
+			f, err := strconv.ParseFloat(v.V().(string), 64)
 			if err != nil {
-				return Value{}, stringutil.Errorf(`cannot cast %q as integer: %w`, v.V, intErr)
+				return Value{}, stringutil.Errorf(`cannot cast %q as integer: %w`, v.V(), intErr)
 			}
 			i = int64(f)
 		}
@@ -105,11 +105,11 @@ func (v Value) CastAsDouble() (Value, error) {
 	case DoubleValue:
 		return v, nil
 	case IntegerValue:
-		return NewDoubleValue(float64(v.V.(int64))), nil
+		return NewDoubleValue(float64(v.V().(int64))), nil
 	case TextValue:
-		f, err := strconv.ParseFloat(v.V.(string), 64)
+		f, err := strconv.ParseFloat(v.V().(string), 64)
 		if err != nil {
-			return Value{}, stringutil.Errorf(`cannot cast %q as double: %w`, v.V, err)
+			return Value{}, stringutil.Errorf(`cannot cast %q as double: %w`, v.V(), err)
 		}
 		return NewDoubleValue(f), nil
 	}
@@ -150,9 +150,9 @@ func (v Value) CastAsBlob() (Value, error) {
 	}
 
 	if v.Type == TextValue {
-		b, err := base64.StdEncoding.DecodeString(v.V.(string))
+		b, err := base64.StdEncoding.DecodeString(v.V().(string))
 		if err != nil {
-			return Value{}, stringutil.Errorf(`cannot cast %q as blob: %w`, v.V, err)
+			return Value{}, stringutil.Errorf(`cannot cast %q as blob: %w`, v.V(), err)
 		}
 
 		return NewBlobValue(b), nil
@@ -171,9 +171,9 @@ func (v Value) CastAsArray() (Value, error) {
 
 	if v.Type == TextValue {
 		var vb ValueBuffer
-		err := vb.UnmarshalJSON([]byte(v.V.(string)))
+		err := vb.UnmarshalJSON([]byte(v.V().(string)))
 		if err != nil {
-			return Value{}, stringutil.Errorf(`cannot cast %q as array: %w`, v.V, err)
+			return Value{}, stringutil.Errorf(`cannot cast %q as array: %w`, v.V(), err)
 		}
 
 		return NewArrayValue(&vb), nil
@@ -192,9 +192,9 @@ func (v Value) CastAsDocument() (Value, error) {
 
 	if v.Type == TextValue {
 		var fb FieldBuffer
-		err := fb.UnmarshalJSON([]byte(v.V.(string)))
+		err := fb.UnmarshalJSON([]byte(v.V().(string)))
 		if err != nil {
-			return Value{}, stringutil.Errorf(`cannot cast %q as document: %w`, v.V, err)
+			return Value{}, stringutil.Errorf(`cannot cast %q as document: %w`, v.V(), err)
 		}
 
 		return NewDocumentValue(&fb), nil

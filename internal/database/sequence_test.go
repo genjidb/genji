@@ -26,7 +26,7 @@ func getLease(t testing.TB, tx *database.Transaction, catalog database.Catalog, 
 	if err != nil {
 		return nil, err
 	}
-	lease := v.V.(int64)
+	lease := v.V().(int64)
 	return &lease, nil
 }
 

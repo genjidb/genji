@@ -129,7 +129,7 @@ func (c *Catalog) loadSequences(tx *database.Transaction, info []database.Sequen
 
 		var currentValue *int64
 		if err == nil {
-			v := v.V.(int64)
+			v := v.V().(int64)
 			currentValue = &v
 
 		}

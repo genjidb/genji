@@ -88,10 +88,19 @@ func (t ValueType) IsAny() bool {
 	return t == AnyType
 }
 
+type Val interface {
+	Type() ValueType
+	v() interface{}
+	IsZeroValue() (bool, error)
+	Append([]byte) ([]byte, error)
+	MarshalJSON() ([]byte, error)
+	UnmarshalJSON([]byte) error
+}
+
 // A Value stores encoded data alongside its type.
 type Value struct {
 	Type ValueType
-	V    interface{}
+	v    interface{}
 }
 
 // NewNullValue returns a Null value.
@@ -105,7 +114,7 @@ func NewNullValue() Value {
 func NewBoolValue(x bool) Value {
 	return Value{
 		Type: BoolValue,
-		V:    x,
+		v:    x,
 	}
 }
 
@@ -114,7 +123,7 @@ func NewBoolValue(x bool) Value {
 func NewIntegerValue(x int64) Value {
 	return Value{
 		Type: IntegerValue,
-		V:    int64(x),
+		v:    int64(x),
 	}
 }
 
@@ -122,7 +131,7 @@ func NewIntegerValue(x int64) Value {
 func NewDoubleValue(x float64) Value {
 	return Value{
 		Type: DoubleValue,
-		V:    x,
+		v:    x,
 	}
 }
 
@@ -130,7 +139,7 @@ func NewDoubleValue(x float64) Value {
 func NewBlobValue(x []byte) Value {
 	return Value{
 		Type: BlobValue,
-		V:    x,
+		v:    x,
 	}
 }
 
@@ -138,7 +147,7 @@ func NewBlobValue(x []byte) Value {
 func NewTextValue(x string) Value {
 	return Value{
 		Type: TextValue,
-		V:    x,
+		v:    x,
 	}
 }
 
@@ -146,7 +155,7 @@ func NewTextValue(x string) Value {
 func NewArrayValue(a Array) Value {
 	return Value{
 		Type: ArrayValue,
-		V:    a,
+		v:    a,
 	}
 }
 
@@ -154,8 +163,12 @@ func NewArrayValue(a Array) Value {
 func NewDocumentValue(d Document) Value {
 	return Value{
 		Type: DocumentValue,
-		V:    d,
+		v:    d,
 	}
+}
+
+func (v Value) V() interface{} {
+	return v.v
 }
 
 // IsTruthy returns whether v is not equal to the zero value of its type.
@@ -173,26 +186,26 @@ func (v Value) IsTruthy() (bool, error) {
 func (v Value) IsZeroValue() (bool, error) {
 	switch v.Type {
 	case BoolValue:
-		return v.V == false, nil
+		return v.v == false, nil
 	case IntegerValue:
-		return v.V == int64(0), nil
+		return v.v == int64(0), nil
 	case DoubleValue:
-		return v.V == float64(0), nil
+		return v.v == float64(0), nil
 	case BlobValue:
-		return v.V == nil, nil
+		return v.v == nil, nil
 	case TextValue:
-		return v.V == "", nil
+		return v.v == "", nil
 	case ArrayValue:
 		// The zero value of an array is an empty array.
 		// Thus, if GetByIndex(0) returns the ErrValueNotFound
 		// it means that the array is empty.
-		_, err := v.V.(Array).GetByIndex(0)
+		_, err := v.v.(Array).GetByIndex(0)
 		if err == ErrValueNotFound {
 			return true, nil
 		}
 		return false, err
 	case DocumentValue:
-		err := v.V.(Document).Iterate(func(_ string, _ Value) error {
+		err := v.v.(Document).Iterate(func(_ string, _ Value) error {
 			// We return an error in the first iteration to stop it.
 			return errStop
 		})
@@ -219,11 +232,11 @@ func (v Value) MarshalJSON() ([]byte, error) {
 	case NullValue:
 		return []byte("null"), nil
 	case BoolValue:
-		return strconv.AppendBool(nil, v.V.(bool)), nil
+		return strconv.AppendBool(nil, v.v.(bool)), nil
 	case IntegerValue:
-		return strconv.AppendInt(nil, v.V.(int64), 10), nil
+		return strconv.AppendInt(nil, v.v.(int64), 10), nil
 	case DoubleValue:
-		f := v.V.(float64)
+		f := v.v.(float64)
 		abs := math.Abs(f)
 		fmt := byte('f')
 		if abs != 0 {
@@ -236,20 +249,20 @@ func (v Value) MarshalJSON() ([]byte, error) {
 		// See https://pkg.go.dev/strconv#FormatFloat
 		prec := -1
 
-		return strconv.AppendFloat(nil, v.V.(float64), fmt, prec, 64), nil
+		return strconv.AppendFloat(nil, v.v.(float64), fmt, prec, 64), nil
 	case TextValue:
-		return []byte(strconv.Quote(v.V.(string))), nil
+		return []byte(strconv.Quote(v.v.(string))), nil
 	case BlobValue:
-		src := v.V.([]byte)
+		src := v.v.([]byte)
 		dst := make([]byte, base64.StdEncoding.EncodedLen(len(src))+2)
 		dst[0] = '"'
 		dst[len(dst)-1] = '"'
 		base64.StdEncoding.Encode(dst[1:], src)
 		return dst, nil
 	case ArrayValue:
-		return jsonArray{v.V.(Array)}.MarshalJSON()
+		return jsonArray{v.v.(Array)}.MarshalJSON()
 	case DocumentValue:
-		return jsonDocument{v.V.(Document)}.MarshalJSON()
+		return jsonDocument{v.v.(Document)}.MarshalJSON()
 	default:
 		return nil, stringutil.Errorf("unexpected type: %d", v.Type)
 	}
@@ -261,9 +274,9 @@ func (v Value) String() string {
 	case NullValue:
 		return "NULL"
 	case TextValue:
-		return strconv.Quote(v.V.(string))
+		return strconv.Quote(v.v.(string))
 	case BlobValue:
-		return stringutil.Sprintf("%v", v.V)
+		return stringutil.Sprintf("%v", v.v)
 	}
 
 	d, _ := v.MarshalJSON()
@@ -275,27 +288,27 @@ func (v Value) String() string {
 func (v Value) Append(buf []byte) ([]byte, error) {
 	switch v.Type {
 	case BlobValue:
-		return append(buf, v.V.([]byte)...), nil
+		return append(buf, v.v.([]byte)...), nil
 	case TextValue:
-		return append(buf, v.V.(string)...), nil
+		return append(buf, v.v.(string)...), nil
 	case BoolValue:
-		return binarysort.AppendBool(buf, v.V.(bool)), nil
+		return binarysort.AppendBool(buf, v.v.(bool)), nil
 	case IntegerValue:
-		return binarysort.AppendInt64(buf, v.V.(int64)), nil
+		return binarysort.AppendInt64(buf, v.v.(int64)), nil
 	case DoubleValue:
-		return binarysort.AppendFloat64(buf, v.V.(float64)), nil
+		return binarysort.AppendFloat64(buf, v.v.(float64)), nil
 	case NullValue:
 		return buf, nil
 	case ArrayValue:
 		var buf bytes.Buffer
-		err := NewValueEncoder(&buf).appendArray(v.V.(Array))
+		err := NewValueEncoder(&buf).appendArray(v.v.(Array))
 		if err != nil {
 			return nil, err
 		}
 		return buf.Bytes(), nil
 	case DocumentValue:
 		var buf bytes.Buffer
-		err := NewValueEncoder(&buf).appendDocument(v.V.(Document))
+		err := NewValueEncoder(&buf).appendDocument(v.v.(Document))
 		if err != nil {
 			return nil, err
 		}
@@ -391,13 +404,13 @@ func calculateIntegers(a, b Value, operator byte) (res Value, err error) {
 	if err != nil {
 		return NewNullValue(), nil
 	}
-	xa = ia.V.(int64)
+	xa = ia.v.(int64)
 
 	ib, err := b.CastAsInteger()
 	if err != nil {
 		return NewNullValue(), nil
 	}
-	xb = ib.V.(int64)
+	xb = ib.v.(int64)
 
 	var xr int64
 
@@ -458,13 +471,13 @@ func calculateFloats(a, b Value, operator byte) (res Value, err error) {
 	if err != nil {
 		return NewNullValue(), nil
 	}
-	xa = fa.V.(float64)
+	xa = fa.v.(float64)
 
 	fb, err := b.CastAsDouble()
 	if err != nil {
 		return NewNullValue(), nil
 	}
-	xb = fb.V.(float64)
+	xb = fb.v.(float64)
 
 	switch operator {
 	case '+':

@@ -354,7 +354,7 @@ func (rs *documentStream) Next(dest []driver.Value) error {
 			return err
 		}
 
-		dest[i] = f.V
+		dest[i] = f.V()
 	}
 
 	return nil

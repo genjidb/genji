@@ -68,7 +68,7 @@ func (e *indexValueEncoder) EncodeValue(v document.Value) error {
 		}
 
 		// marshal the value, if it exists, just return the type otherwise
-		if v.V != nil {
+		if v.V() != nil {
 			b, err := v.MarshalBinary()
 			if err != nil {
 				return err
@@ -92,7 +92,7 @@ func (e *indexValueEncoder) EncodeValue(v document.Value) error {
 		}
 	}
 
-	if v.V == nil {
+	if v.V() == nil {
 		return nil
 	}
 
@@ -279,7 +279,7 @@ func (pivot Pivot) validate(idx *Index) {
 		for _, p := range pivot {
 			// if on the previous pivot we have a value
 			if hasValue {
-				hasValue = p.V != nil
+				hasValue = p.V() != nil
 			} else {
 				panic("cannot iterate on a composite index with a pivot with both values and nil values")
 			}
@@ -291,7 +291,7 @@ func (pivot Pivot) validate(idx *Index) {
 func (pivot Pivot) IsAny() bool {
 	res := true
 	for _, p := range pivot {
-		res = res && p.Type.IsAny() && p.V == nil
+		res = res && p.Type.IsAny() && p.V() == nil
 		if !res {
 			break
 		}
@@ -457,7 +457,7 @@ func (idx *Index) buildSeek(pivot Pivot, reverse bool) ([]byte, error) {
 
 	// if the index is without type and the first pivot is valueless but typed, iterate but filter out the types we don't want,
 	// but just for the first pivot; subsequent pivot values cannot be filtered this way.
-	if idx.Info.Types[0].IsAny() && !pivot[0].Type.IsAny() && pivot[0].V == nil {
+	if idx.Info.Types[0].IsAny() && !pivot[0].Type.IsAny() && pivot[0].V() == nil {
 		seek = []byte{byte(pivot[0].Type)}
 
 		if reverse {

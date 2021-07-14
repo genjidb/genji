@@ -117,19 +117,19 @@ func DecodeDocument(buf []byte) document.Document {
 func EncodeValue(v document.Value) ([]byte, error) {
 	switch v.Type {
 	case document.DocumentValue:
-		return EncodeDocument(v.V.(document.Document))
+		return EncodeDocument(v.V().(document.Document))
 	case document.ArrayValue:
-		return EncodeArray(v.V.(document.Array))
+		return EncodeArray(v.V().(document.Array))
 	case document.BlobValue:
-		return v.V.([]byte), nil
+		return v.V().([]byte), nil
 	case document.TextValue:
-		return []byte(v.V.(string)), nil
+		return []byte(v.V().(string)), nil
 	case document.BoolValue:
-		return binarysort.AppendBool(nil, v.V.(bool)), nil
+		return binarysort.AppendBool(nil, v.V().(bool)), nil
 	case document.IntegerValue:
-		return encodeInt64(v.V.(int64)), nil
+		return encodeInt64(v.V().(int64)), nil
 	case document.DoubleValue:
-		return binarysort.AppendFloat64(nil, v.V.(float64)), nil
+		return binarysort.AppendFloat64(nil, v.V().(float64)), nil
 	case document.NullValue:
 		return nil, nil
 	}

@@ -88,7 +88,7 @@ func TestNewValue(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			v, err := document.NewValue(test.value)
 			require.NoError(t, err)
-			require.Equal(t, test.expected, v.V)
+			require.Equal(t, test.expected, v.V())
 		})
 	}
 }

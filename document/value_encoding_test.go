@@ -162,39 +162,39 @@ func (v *Value) UnmarshalBinary(data []byte) error {
 	switch v.Type {
 	case NullValue:
 	case BlobValue:
-		v.V = data
+		v.v = data
 	case TextValue:
-		v.V = string(data)
+		v.v = string(data)
 	case BoolValue:
 		x, err := binarysort.DecodeBool(data)
 		if err != nil {
 			return err
 		}
-		v.V = x
+		v.v = x
 	case IntegerValue:
 		x, err := binarysort.DecodeInt64(data)
 		if err != nil {
 			return err
 		}
-		v.V = x
+		v.v = x
 	case DoubleValue:
 		x, err := binarysort.DecodeFloat64(data)
 		if err != nil {
 			return err
 		}
-		v.V = x
+		v.v = x
 	case ArrayValue:
 		a, _, err := decodeArray(data)
 		if err != nil {
 			return err
 		}
-		v.V = a
+		v.v = a
 	case DocumentValue:
 		d, _, err := decodeDocument(data)
 		if err != nil {
 			return err
 		}
-		v.V = d
+		v.v = d
 	default:
 		return errors.New("unknown type")
 	}

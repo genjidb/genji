@@ -133,7 +133,7 @@ func (vb *ValueBuffer) Copy(a Array) error {
 		switch v.Type {
 		case DocumentValue:
 			var buf FieldBuffer
-			err = buf.Copy(v.V.(Document))
+			err = buf.Copy(v.V().(Document))
 			if err != nil {
 				return err
 			}
@@ -144,7 +144,7 @@ func (vb *ValueBuffer) Copy(a Array) error {
 			}
 		case ArrayValue:
 			var buf ValueBuffer
-			err = buf.Copy(v.V.(Array))
+			err = buf.Copy(v.V().(Array))
 			if err != nil {
 				return err
 			}
@@ -168,10 +168,10 @@ func (vb *ValueBuffer) Apply(fn func(p Path, v Value) (Value, error)) error {
 
 		switch v.Type {
 		case DocumentValue:
-			buf, ok := v.V.(*FieldBuffer)
+			buf, ok := v.V().(*FieldBuffer)
 			if !ok {
 				buf = NewFieldBuffer()
-				err := buf.Copy(v.V.(Document))
+				err := buf.Copy(v.V().(Document))
 				if err != nil {
 					return err
 				}
@@ -185,10 +185,10 @@ func (vb *ValueBuffer) Apply(fn func(p Path, v Value) (Value, error)) error {
 			}
 			vb.Values[i] = NewDocumentValue(buf)
 		case ArrayValue:
-			buf, ok := v.V.(*ValueBuffer)
+			buf, ok := v.V().(*ValueBuffer)
 			if !ok {
 				buf = NewValueBuffer()
-				err := buf.Copy(v.V.(Array))
+				err := buf.Copy(v.V().(Array))
 				if err != nil {
 					return err
 				}

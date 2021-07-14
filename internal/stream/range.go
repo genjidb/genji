@@ -179,7 +179,7 @@ func (r *encodedValueRange) Convert(v document.Value, isMin bool) (document.Valu
 		}
 
 		if v.Type == document.DoubleValue && targetType == document.IntegerValue {
-			f := v.V.(float64)
+			f := v.V().(float64)
 			if float64(int64(f)) == f {
 				return v.CastAsInteger()
 			}
@@ -379,7 +379,7 @@ func (r *IndexRange) evalRange(index *database.Index, table *database.Table, env
 		if err != nil {
 			return nil, false, err
 		}
-		rng.Min = lv.V.(*document.ValueBuffer)
+		rng.Min = lv.V().(*document.ValueBuffer)
 
 		var ok bool
 		for i := range rng.Min.Values {
@@ -395,7 +395,7 @@ func (r *IndexRange) evalRange(index *database.Index, table *database.Table, env
 		if err != nil {
 			return nil, false, err
 		}
-		rng.Max = lv.V.(*document.ValueBuffer)
+		rng.Max = lv.V().(*document.ValueBuffer)
 
 		var ok bool
 		for i := range rng.Max.Values {
@@ -550,7 +550,7 @@ func (r *encodedIndexRange) Convert(v document.Value, p document.Path, t documen
 		}
 
 		if v.Type == document.DoubleValue && targetType == document.IntegerValue {
-			f := v.V.(float64)
+			f := v.V().(float64)
 			if float64(int64(f)) == f {
 				return v.CastAsInteger()
 			}

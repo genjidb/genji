@@ -116,6 +116,6 @@ func (op *ConcatOperator) Eval(env *environment.Environment) (document.Value, er
 			return NullLiteral, nil
 		}
 
-		return document.NewTextValue(a.V.(string) + b.V.(string)), nil
+		return document.NewTextValue(a.V().(string) + b.V().(string)), nil
 	})
 }

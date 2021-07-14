@@ -373,10 +373,10 @@ func CastConversion(v document.Value, path document.Path, targetType document.Va
 func (f FieldConstraints) ConvertValueAtPath(path document.Path, v document.Value, conversionFn ConversionFunc) (document.Value, error) {
 	switch v.Type {
 	case document.ArrayValue:
-		vb, err := f.convertArrayAtPath(path, v.V.(document.Array), conversionFn)
+		vb, err := f.convertArrayAtPath(path, v.V().(document.Array), conversionFn)
 		return document.NewArrayValue(vb), err
 	case document.DocumentValue:
-		fb, err := f.convertDocumentAtPath(path, v.V.(document.Document), conversionFn)
+		fb, err := f.convertDocumentAtPath(path, v.V().(document.Document), conversionFn)
 		return document.NewDocumentValue(fb), err
 	}
 	return f.convertScalarAtPath(path, v, conversionFn)

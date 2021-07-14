@@ -528,9 +528,9 @@ func (s *SumAggregator) Aggregate(env *environment.Environment) error {
 
 	if s.SumF != nil {
 		if v.Type == document.IntegerValue {
-			*s.SumF += float64(v.V.(int64))
+			*s.SumF += float64(v.V().(int64))
 		} else {
-			*s.SumF += float64(v.V.(float64))
+			*s.SumF += float64(v.V().(float64))
 		}
 
 		return nil
@@ -542,7 +542,7 @@ func (s *SumAggregator) Aggregate(env *environment.Environment) error {
 			sumF = float64(*s.SumI)
 		}
 		s.SumF = &sumF
-		*s.SumF += float64(v.V.(float64))
+		*s.SumF += float64(v.V().(float64))
 
 		return nil
 	}
@@ -552,7 +552,7 @@ func (s *SumAggregator) Aggregate(env *environment.Environment) error {
 		s.SumI = &sumI
 	}
 
-	*s.SumI += v.V.(int64)
+	*s.SumI += v.V().(int64)
 	return nil
 }
 
@@ -633,9 +633,9 @@ func (s *AvgAggregator) Aggregate(env *environment.Environment) error {
 
 	switch v.Type {
 	case document.IntegerValue:
-		s.Avg += float64(v.V.(int64))
+		s.Avg += float64(v.V().(int64))
 	case document.DoubleValue:
-		s.Avg += v.V.(float64)
+		s.Avg += v.V().(float64)
 	default:
 		return nil
 	}

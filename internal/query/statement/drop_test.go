@@ -38,7 +38,7 @@ func TestDropTable(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		tables = append(tables, v.V.(string))
+		tables = append(tables, v.V().(string))
 		return nil
 	})
 	require.NoError(t, err)

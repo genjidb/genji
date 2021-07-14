@@ -91,9 +91,9 @@ func TestNewFromMap(t *testing.T) {
 			counter[f]++
 			switch f {
 			case "name":
-				require.Equal(t, m[f], v.V.(string))
+				require.Equal(t, m[f], v.V().(string))
 			default:
-				require.EqualValues(t, m[f], v.V)
+				require.EqualValues(t, m[f], v.V())
 			}
 			return nil
 		})

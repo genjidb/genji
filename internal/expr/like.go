@@ -27,7 +27,7 @@ func (op *LikeOperator) Eval(env *environment.Environment) (document.Value, erro
 			return NullLiteral, nil
 		}
 
-		if like(b.V.(string), a.V.(string)) {
+		if like(b.V().(string), a.V().(string)) {
 			return TrueLiteral, nil
 		}
 

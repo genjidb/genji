@@ -49,9 +49,9 @@ func transformV(v document.Value) val {
 	var vi interface{}
 
 	if v.Type == document.DocumentValue {
-		vi = transformDoc(v.V.(document.Document))
+		vi = transformDoc(v.V().(document.Document))
 	} else if v.Type == document.ArrayValue {
-		vi = transformArray(v.V.(document.Array))
+		vi = transformArray(v.V().(document.Array))
 	} else {
 		vi = v.String()
 	}
