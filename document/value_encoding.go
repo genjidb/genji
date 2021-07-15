@@ -5,10 +5,11 @@ import (
 	"io"
 
 	"github.com/genjidb/genji/internal/binarysort"
+	"github.com/genjidb/genji/types"
 )
 
 const (
-	// ArrayValueDelim is a separator used when encoding document.Array in
+	// types.ArrayValueDelim is a separator used when encoding document.Array in
 	// binary reprsentation
 	ArrayValueDelim = 0x1f
 	// ArrayEnd is the final separator used when encoding document.Array in
@@ -50,27 +51,27 @@ func (ve *ValueEncoder) appendValue(v Value) error {
 	}
 
 	switch v.Type() {
-	case NullValue:
+	case types.NullValue:
 		return nil
-	case ArrayValue:
+	case types.ArrayValue:
 		return ve.appendArray(v.V().(Array))
-	case DocumentValue:
+	case types.DocumentValue:
 		return ve.appendDocument(v.V().(Document))
 	}
 
 	ve.buf = ve.buf[:0]
 
 	switch v.Type() {
-	case BlobValue:
+	case types.BlobValue:
 		ve.buf, err = binarysort.AppendBase64(ve.buf, v.V().([]byte))
-	case TextValue:
+	case types.TextValue:
 		text := v.V().(string)
 		ve.buf, err = binarysort.AppendBase64(ve.buf, []byte(text))
-	case BoolValue:
+	case types.BoolValue:
 		ve.buf, err = binarysort.AppendBool(ve.buf, v.V().(bool)), nil
-	case IntegerValue:
+	case types.IntegerValue:
 		ve.buf = binarysort.AppendInt64(ve.buf, v.V().(int64))
-	case DoubleValue:
+	case types.DoubleValue:
 		ve.buf = binarysort.AppendFloat64(ve.buf, v.V().(float64))
 	default:
 		return errors.New("cannot encode type " + v.Type().String() + " as key")

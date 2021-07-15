@@ -3,6 +3,8 @@ package document
 import (
 	"bytes"
 	"strings"
+
+	"github.com/genjidb/genji/types"
 )
 
 type operator uint8
@@ -70,23 +72,23 @@ func IsLesserThanOrEqual(v, other Value) (bool, error) {
 func compare(op operator, l, r Value) (bool, error) {
 	switch {
 	// deal with nil
-	case l.Type() == NullValue || r.Type() == NullValue:
+	case l.Type() == types.NullValue || r.Type() == types.NullValue:
 		return compareWithNull(op, l, r), nil
 
 	// compare booleans together
-	case l.Type() == BoolValue && r.Type() == BoolValue:
+	case l.Type() == types.BoolValue && r.Type() == types.BoolValue:
 		return compareBooleans(op, l.V().(bool), r.V().(bool)), nil
 
 	// compare texts together
-	case l.Type() == TextValue && r.Type() == TextValue:
+	case l.Type() == types.TextValue && r.Type() == types.TextValue:
 		return compareTexts(op, l.V().(string), r.V().(string)), nil
 
 	// compare blobs together
-	case r.Type() == BlobValue && l.Type() == BlobValue:
+	case r.Type() == types.BlobValue && l.Type() == types.BlobValue:
 		return compareBlobs(op, l.V().([]byte), r.V().([]byte)), nil
 
 	// compare integers together
-	case l.Type() == IntegerValue && r.Type() == IntegerValue:
+	case l.Type() == types.IntegerValue && r.Type() == types.IntegerValue:
 		return compareIntegers(op, l.V().(int64), r.V().(int64)), nil
 
 	// compare numbers together
@@ -94,11 +96,11 @@ func compare(op operator, l, r Value) (bool, error) {
 		return compareNumbers(op, l, r), nil
 
 	// compare arrays together
-	case l.Type() == ArrayValue && r.Type() == ArrayValue:
+	case l.Type() == types.ArrayValue && r.Type() == types.ArrayValue:
 		return compareArrays(op, l.V().(Array), r.V().(Array))
 
 	// compare documents together
-	case l.Type() == DocumentValue && r.Type() == DocumentValue:
+	case l.Type() == types.DocumentValue && r.Type() == types.DocumentValue:
 		return compareDocuments(op, l.V().(Document), r.V().(Document))
 	}
 

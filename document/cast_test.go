@@ -3,6 +3,7 @@ package document
 import (
 	"testing"
 
+	"github.com/genjidb/genji/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +25,7 @@ func TestCastAs(t *testing.T) {
 		Add("a", integerV).
 		Add("b", textV))
 
-	check := func(t *testing.T, targetType ValueType, tests []test) {
+	check := func(t *testing.T, targetType types.ValueType, tests []test) {
 		for _, test := range tests {
 			t.Run(test.v.String(), func(t *testing.T) {
 				got, err := CastAs(test.v, targetType)
@@ -39,7 +40,7 @@ func TestCastAs(t *testing.T) {
 	}
 
 	t.Run("bool", func(t *testing.T) {
-		check(t, BoolValue, []test{
+		check(t, types.BoolValue, []test{
 			{boolV, boolV, false},
 			{integerV, boolV, false},
 			{NewIntegerValue(0), NewBoolValue(false), false},
@@ -54,7 +55,7 @@ func TestCastAs(t *testing.T) {
 	})
 
 	t.Run("integer", func(t *testing.T) {
-		check(t, IntegerValue, []test{
+		check(t, types.IntegerValue, []test{
 			{boolV, NewIntegerValue(1), false},
 			{NewBoolValue(false), NewIntegerValue(0), false},
 			{integerV, integerV, false},
@@ -69,7 +70,7 @@ func TestCastAs(t *testing.T) {
 	})
 
 	t.Run("double", func(t *testing.T) {
-		check(t, DoubleValue, []test{
+		check(t, types.DoubleValue, []test{
 			{boolV, nil, true},
 			{integerV, NewDoubleValue(10), false},
 			{doubleV, doubleV, false},
@@ -83,7 +84,7 @@ func TestCastAs(t *testing.T) {
 	})
 
 	t.Run("text", func(t *testing.T) {
-		check(t, TextValue, []test{
+		check(t, types.TextValue, []test{
 			{boolV, NewTextValue("true"), false},
 			{integerV, NewTextValue("10"), false},
 			{doubleV, NewTextValue("10.5"), false},
@@ -97,7 +98,7 @@ func TestCastAs(t *testing.T) {
 	})
 
 	t.Run("blob", func(t *testing.T) {
-		check(t, BlobValue, []test{
+		check(t, types.BlobValue, []test{
 			{boolV, nil, true},
 			{integerV, nil, true},
 			{doubleV, nil, true},
@@ -110,7 +111,7 @@ func TestCastAs(t *testing.T) {
 	})
 
 	t.Run("array", func(t *testing.T) {
-		check(t, ArrayValue, []test{
+		check(t, types.ArrayValue, []test{
 			{boolV, nil, true},
 			{integerV, nil, true},
 			{doubleV, nil, true},
@@ -123,7 +124,7 @@ func TestCastAs(t *testing.T) {
 	})
 
 	t.Run("document", func(t *testing.T) {
-		check(t, DocumentValue, []test{
+		check(t, types.DocumentValue, []test{
 			{boolV, nil, true},
 			{integerV, nil, true},
 			{doubleV, nil, true},

@@ -12,6 +12,7 @@ import (
 	"github.com/genjidb/genji/internal/catalog"
 	"github.com/genjidb/genji/internal/database"
 	"github.com/genjidb/genji/internal/testutil"
+	"github.com/genjidb/genji/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -113,10 +114,10 @@ func TestCatalogTable(t *testing.T) {
 		defer cleanup()
 
 		ti := &database.TableInfo{FieldConstraints: []*database.FieldConstraint{
-			{Path: testutil.ParseDocumentPath(t, "name"), Type: document.TextValue, IsNotNull: true},
-			{Path: testutil.ParseDocumentPath(t, "age"), Type: document.IntegerValue, IsPrimaryKey: true},
-			{Path: testutil.ParseDocumentPath(t, "gender"), Type: document.TextValue},
-			{Path: testutil.ParseDocumentPath(t, "city"), Type: document.TextValue},
+			{Path: testutil.ParseDocumentPath(t, "name"), Type: types.TextValue, IsNotNull: true},
+			{Path: testutil.ParseDocumentPath(t, "age"), Type: types.IntegerValue, IsPrimaryKey: true},
+			{Path: testutil.ParseDocumentPath(t, "gender"), Type: types.TextValue},
+			{Path: testutil.ParseDocumentPath(t, "city"), Type: types.TextValue},
 		}}
 
 		update(t, db, func(tx *database.Transaction, catalog *catalog.Catalog) error {
@@ -175,10 +176,10 @@ func TestCatalogTable(t *testing.T) {
 		defer cleanup()
 
 		ti := &database.TableInfo{FieldConstraints: []*database.FieldConstraint{
-			{Path: testutil.ParseDocumentPath(t, "name"), Type: document.TextValue, IsNotNull: true},
-			{Path: testutil.ParseDocumentPath(t, "age"), Type: document.IntegerValue, IsPrimaryKey: true},
-			{Path: testutil.ParseDocumentPath(t, "gender"), Type: document.TextValue},
-			{Path: testutil.ParseDocumentPath(t, "city"), Type: document.TextValue},
+			{Path: testutil.ParseDocumentPath(t, "name"), Type: types.TextValue, IsNotNull: true},
+			{Path: testutil.ParseDocumentPath(t, "age"), Type: types.IntegerValue, IsPrimaryKey: true},
+			{Path: testutil.ParseDocumentPath(t, "gender"), Type: types.TextValue},
+			{Path: testutil.ParseDocumentPath(t, "city"), Type: types.TextValue},
 		}}
 
 		update(t, db, func(tx *database.Transaction, catalog *catalog.Catalog) error {
@@ -191,7 +192,7 @@ func TestCatalogTable(t *testing.T) {
 
 			// Add field constraint
 			fieldToAdd := database.FieldConstraint{
-				Path: testutil.ParseDocumentPath(t, "last_name"), Type: document.TextValue,
+				Path: testutil.ParseDocumentPath(t, "last_name"), Type: types.TextValue,
 			}
 			err := catalog.AddFieldConstraint(tx, "foo", fieldToAdd)
 			require.NoError(t, err)
@@ -215,7 +216,7 @@ func TestCatalogTable(t *testing.T) {
 
 			// Adding a second primary key should return an error
 			fieldToAdd = database.FieldConstraint{
-				Path: testutil.ParseDocumentPath(t, "foobar"), Type: document.IntegerValue, IsPrimaryKey: true,
+				Path: testutil.ParseDocumentPath(t, "foobar"), Type: types.IntegerValue, IsPrimaryKey: true,
 			}
 			err = catalog.AddFieldConstraint(tx, "foo", fieldToAdd)
 			require.Error(t, err)
@@ -274,8 +275,8 @@ func TestCatalogCreateTable(t *testing.T) {
 		update(t, db, func(tx *database.Transaction, catalog *catalog.Catalog) error {
 			err := catalog.CreateTable(tx, "test", &database.TableInfo{
 				FieldConstraints: []*database.FieldConstraint{
-					{Path: document.NewPath("a", "b"), Type: document.IntegerValue},
-					{Path: document.NewPath("a"), Type: document.IntegerValue},
+					{Path: document.NewPath("a", "b"), Type: types.IntegerValue},
+					{Path: document.NewPath("a"), Type: types.IntegerValue},
 				},
 			})
 			require.Error(t, err)
@@ -332,7 +333,7 @@ func TestCatalogCreateIndex(t *testing.T) {
 			require.NotNil(t, idx)
 
 			var i int
-			err = idx.AscendGreaterOrEqual(values(document.NewEmptyValue(document.DoubleValue)), func(v, k []byte) error {
+			err = idx.AscendGreaterOrEqual(values(document.NewEmptyValue(types.DoubleValue)), func(v, k []byte) error {
 				var buf bytes.Buffer
 				err = document.NewValueEncoder(&buf).Encode(document.NewDoubleValue(float64(i)))
 				require.NoError(t, err)
@@ -575,7 +576,7 @@ func TestCatalogReIndex(t *testing.T) {
 			require.NoError(t, err)
 
 			var i int
-			err = idx.AscendGreaterOrEqual([]document.Value{document.NewEmptyValue(document.DoubleValue)}, func(v, k []byte) error {
+			err = idx.AscendGreaterOrEqual([]document.Value{document.NewEmptyValue(types.DoubleValue)}, func(v, k []byte) error {
 				var buf bytes.Buffer
 				err = document.NewValueEncoder(&buf).Encode(document.NewDoubleValue(float64(i)))
 				require.NoError(t, err)
@@ -670,7 +671,7 @@ func TestReIndexAll(t *testing.T) {
 			require.NoError(t, err)
 
 			var i int
-			err = idx.AscendGreaterOrEqual([]document.Value{document.NewEmptyValue(document.DoubleValue)}, func(v, k []byte) error {
+			err = idx.AscendGreaterOrEqual([]document.Value{document.NewEmptyValue(types.DoubleValue)}, func(v, k []byte) error {
 				var buf bytes.Buffer
 				err = document.NewValueEncoder(&buf).Encode(document.NewDoubleValue(float64(i)))
 				require.NoError(t, err)
@@ -686,7 +687,7 @@ func TestReIndexAll(t *testing.T) {
 			require.NoError(t, err)
 
 			i = 0
-			err = idx.AscendGreaterOrEqual([]document.Value{document.NewEmptyValue(document.DoubleValue)}, func(v, k []byte) error {
+			err = idx.AscendGreaterOrEqual([]document.Value{document.NewEmptyValue(types.DoubleValue)}, func(v, k []byte) error {
 				var buf bytes.Buffer
 				err = document.NewValueEncoder(&buf).Encode(document.NewDoubleValue(float64(i)))
 				require.NoError(t, err)

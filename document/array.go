@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"github.com/buger/jsonparser"
+	"github.com/genjidb/genji/types"
 )
 
 // ErrValueNotFound must be returned by Array implementations, when calling the GetByIndex method and
@@ -131,7 +132,7 @@ func (vb *ValueBuffer) Copy(a Array) error {
 
 	for i, v := range vb.Values {
 		switch v.Type() {
-		case DocumentValue:
+		case types.DocumentValue:
 			var buf FieldBuffer
 			err = buf.Copy(v.V().(Document))
 			if err != nil {
@@ -142,7 +143,7 @@ func (vb *ValueBuffer) Copy(a Array) error {
 			if err != nil {
 				return err
 			}
-		case ArrayValue:
+		case types.ArrayValue:
 			var buf ValueBuffer
 			err = buf.Copy(v.V().(Array))
 			if err != nil {
@@ -167,7 +168,7 @@ func (vb *ValueBuffer) Apply(fn func(p Path, v Value) (Value, error)) error {
 		path[0].ArrayIndex = i
 
 		switch v.Type() {
-		case DocumentValue:
+		case types.DocumentValue:
 			buf, ok := v.V().(*FieldBuffer)
 			if !ok {
 				buf = NewFieldBuffer()
@@ -184,7 +185,7 @@ func (vb *ValueBuffer) Apply(fn func(p Path, v Value) (Value, error)) error {
 				return err
 			}
 			vb.Values[i] = NewDocumentValue(buf)
-		case ArrayValue:
+		case types.ArrayValue:
 			buf, ok := v.V().(*ValueBuffer)
 			if !ok {
 				buf = NewValueBuffer()
@@ -250,14 +251,14 @@ func (vb *ValueBuffer) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (vb *ValueBuffer) Types() []ValueType {
-	types := make([]ValueType, len(vb.Values))
+func (vb *ValueBuffer) Types() []types.ValueType {
+	tp := make([]types.ValueType, len(vb.Values))
 
 	for i, v := range vb.Values {
-		types[i] = v.Type()
+		tp[i] = v.Type()
 	}
 
-	return types
+	return tp
 }
 
 // IsEqual compares two ValueBuffer and returns true if and only if

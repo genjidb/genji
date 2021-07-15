@@ -6,6 +6,7 @@ import (
 	"github.com/genjidb/genji/document"
 	errs "github.com/genjidb/genji/errors"
 	"github.com/genjidb/genji/internal/database"
+	"github.com/genjidb/genji/types"
 )
 
 // CreateTableStmt represents a parsed CREATE TABLE statement.
@@ -57,7 +58,7 @@ func (stmt *CreateTableStmt) Run(ctx *Context) (Result, error) {
 				TableName: stmt.Info.TableName,
 				Paths:     []document.Path{fc.Path},
 				Unique:    true,
-				Types:     []document.ValueType{fc.Type},
+				Types:     []types.ValueType{fc.Type},
 				Owner: database.Owner{
 					TableName: stmt.Info.TableName,
 					Path:      fc.Path,

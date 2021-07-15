@@ -7,6 +7,7 @@ import (
 
 	"github.com/genjidb/genji/document"
 	"github.com/genjidb/genji/document/encoding"
+	"github.com/genjidb/genji/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -146,7 +147,7 @@ func testArrayGetByIndex(t *testing.T, codecBuilder func() encoding.Codec) {
 	v, err := d.GetByField("a")
 	require.NoError(t, err)
 
-	require.Equal(t, document.ArrayValue, v.Type())
+	require.Equal(t, types.ArrayValue, v.Type())
 	a := v.V().(document.Array)
 	v, err = a.GetByIndex(0)
 	require.NoError(t, err)

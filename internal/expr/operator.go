@@ -7,6 +7,7 @@ import (
 	"github.com/genjidb/genji/internal/environment"
 	"github.com/genjidb/genji/internal/sql/scanner"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 type simpleOperator struct {
@@ -112,7 +113,7 @@ func Concat(a, b Expr) Expr {
 
 func (op *ConcatOperator) Eval(env *environment.Environment) (document.Value, error) {
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
-		if a.Type() != document.TextValue || b.Type() != document.TextValue {
+		if a.Type() != types.TextValue || b.Type() != types.TextValue {
 			return NullLiteral, nil
 		}
 

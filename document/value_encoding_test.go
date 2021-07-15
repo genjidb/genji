@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/genjidb/genji/internal/binarysort"
+	"github.com/genjidb/genji/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -160,36 +161,36 @@ func TestValueBinaryMarshaling(t *testing.T) {
 // instead, v.Type() must be set.
 func (v *value) UnmarshalBinary(data []byte) error {
 	switch v.Type() {
-	case NullValue:
-	case BlobValue:
+	case types.NullValue:
+	case types.BlobValue:
 		v.v = data
-	case TextValue:
+	case types.TextValue:
 		v.v = string(data)
-	case BoolValue:
+	case types.BoolValue:
 		x, err := binarysort.DecodeBool(data)
 		if err != nil {
 			return err
 		}
 		v.v = x
-	case IntegerValue:
+	case types.IntegerValue:
 		x, err := binarysort.DecodeInt64(data)
 		if err != nil {
 			return err
 		}
 		v.v = x
-	case DoubleValue:
+	case types.DoubleValue:
 		x, err := binarysort.DecodeFloat64(data)
 		if err != nil {
 			return err
 		}
 		v.v = x
-	case ArrayValue:
+	case types.ArrayValue:
 		a, _, err := decodeArray(data)
 		if err != nil {
 			return err
 		}
 		v.v = a
-	case DocumentValue:
+	case types.DocumentValue:
 		d, _, err := decodeDocument(data)
 		if err != nil {
 			return err
@@ -204,49 +205,49 @@ func (v *value) UnmarshalBinary(data []byte) error {
 
 // decodeValue decodes a value encoded with ValueEncoder.
 func decodeValue(data []byte) (Value, error) {
-	t := ValueType(data[0])
+	t := types.ValueType(data[0])
 	data = data[1:]
 
 	switch t {
-	case NullValue:
+	case types.NullValue:
 		return NewNullValue(), nil
-	case BlobValue:
+	case types.BlobValue:
 		t, err := binarysort.DecodeBase64(data)
 		if err != nil {
 			return nil, err
 		}
 		return NewBlobValue(t), nil
-	case TextValue:
+	case types.TextValue:
 		t, err := binarysort.DecodeBase64(data)
 		if err != nil {
 			return nil, err
 		}
 		return NewTextValue(string(t)), nil
-	case BoolValue:
+	case types.BoolValue:
 		b, err := binarysort.DecodeBool(data)
 		if err != nil {
 			return nil, err
 		}
 		return NewBoolValue(b), nil
-	case IntegerValue:
+	case types.IntegerValue:
 		x, err := binarysort.DecodeInt64(data)
 		if err != nil {
 			return nil, err
 		}
 		return NewIntegerValue(x), nil
-	case DoubleValue:
+	case types.DoubleValue:
 		x, err := binarysort.DecodeFloat64(data)
 		if err != nil {
 			return nil, err
 		}
 		return NewDoubleValue(x), nil
-	case ArrayValue:
+	case types.ArrayValue:
 		a, _, err := decodeArray(data)
 		if err != nil {
 			return nil, err
 		}
 		return NewArrayValue(a), nil
-	case DocumentValue:
+	case types.DocumentValue:
 		d, _, err := decodeDocument(data)
 		if err != nil {
 			return nil, err
@@ -258,34 +259,34 @@ func decodeValue(data []byte) (Value, error) {
 }
 
 func decodeValueUntil(data []byte, delim, end byte) (Value, int, error) {
-	t := ValueType(data[0])
+	t := types.ValueType(data[0])
 	i := 1
 
 	switch t {
-	case ArrayValue:
+	case types.ArrayValue:
 		a, n, err := decodeArray(data[i:])
 		i += n
 		if err != nil {
 			return nil, i, err
 		}
 		return NewArrayValue(a), i, nil
-	case DocumentValue:
+	case types.DocumentValue:
 		d, n, err := decodeDocument(data[i:])
 		i += n
 		if err != nil {
 			return nil, i, err
 		}
 		return NewDocumentValue(d), i, nil
-	case NullValue:
-	case BoolValue:
+	case types.NullValue:
+	case types.BoolValue:
 		i++
-	case IntegerValue, DoubleValue:
+	case types.IntegerValue, types.DoubleValue:
 		if i+8 < len(data) && (data[i+8] == delim || data[i+8] == end) {
 			i += 8
 		} else {
 			return nil, 0, errors.New("malformed " + t.String())
 		}
-	case BlobValue, TextValue:
+	case types.BlobValue, types.TextValue:
 		for i < len(data) && data[i] != delim && data[i] != end {
 			i++
 		}

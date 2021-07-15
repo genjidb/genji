@@ -9,6 +9,7 @@ import (
 	"github.com/genjidb/genji/document"
 	"github.com/genjidb/genji/document/encoding"
 	"github.com/genjidb/genji/internal/binarysort"
+	"github.com/genjidb/genji/types"
 )
 
 // A Codec is a custom implementation of an encoding.Codec.
@@ -116,21 +117,21 @@ func DecodeDocument(buf []byte) document.Document {
 // EncodeValue encodes any value to a binary representation.
 func EncodeValue(v document.Value) ([]byte, error) {
 	switch v.Type() {
-	case document.DocumentValue:
+	case types.DocumentValue:
 		return EncodeDocument(v.V().(document.Document))
-	case document.ArrayValue:
+	case types.ArrayValue:
 		return EncodeArray(v.V().(document.Array))
-	case document.BlobValue:
+	case types.BlobValue:
 		return v.V().([]byte), nil
-	case document.TextValue:
+	case types.TextValue:
 		return []byte(v.V().(string)), nil
-	case document.BoolValue:
+	case types.BoolValue:
 		return binarysort.AppendBool(nil, v.V().(bool)), nil
-	case document.IntegerValue:
+	case types.IntegerValue:
 		return encodeInt64(v.V().(int64)), nil
-	case document.DoubleValue:
+	case types.DoubleValue:
 		return binarysort.AppendFloat64(nil, v.V().(float64)), nil
-	case document.NullValue:
+	case types.NullValue:
 		return nil, nil
 	}
 
@@ -167,7 +168,7 @@ func (e *EncodedDocument) Iterate(fn func(field string, value document.Value) er
 	}
 
 	for _, fh := range format.Header.FieldHeaders {
-		v, err := DecodeValue(document.ValueType(fh.Type), format.Body[fh.Offset:fh.Offset+fh.Size])
+		v, err := DecodeValue(types.ValueType(fh.Type), format.Body[fh.Offset:fh.Offset+fh.Size])
 		if err != nil {
 			return err
 		}
@@ -201,7 +202,7 @@ func (e EncodedArray) Iterate(fn func(i int, value document.Value) error) error 
 	}
 
 	for _, fh := range format.Header.FieldHeaders {
-		v, err := DecodeValue(document.ValueType(fh.Type), format.Body[fh.Offset:fh.Offset+fh.Size])
+		v, err := DecodeValue(types.ValueType(fh.Type), format.Body[fh.Offset:fh.Offset+fh.Size])
 		if err != nil {
 			return err
 		}
@@ -256,7 +257,7 @@ func decodeValueFromDocument(data []byte, field string) (document.Value, error) 
 		hdata = hdata[n:]
 
 		if field == string(fh.Name) {
-			return DecodeValue(document.ValueType(fh.Type), body[fh.Offset:fh.Offset+fh.Size])
+			return DecodeValue(types.ValueType(fh.Type), body[fh.Offset:fh.Offset+fh.Size])
 		}
 	}
 
@@ -319,32 +320,32 @@ func DecodeArray(buf []byte) document.Array {
 }
 
 // DecodeValue takes some encoded data and decodes it to the target type t.
-func DecodeValue(t document.ValueType, data []byte) (document.Value, error) {
+func DecodeValue(t types.ValueType, data []byte) (document.Value, error) {
 	switch t {
-	case document.DocumentValue:
+	case types.DocumentValue:
 		return document.NewDocumentValue(&EncodedDocument{data}), nil
-	case document.ArrayValue:
+	case types.ArrayValue:
 		return document.NewArrayValue(EncodedArray(data)), nil
-	case document.BlobValue:
+	case types.BlobValue:
 		return document.NewBlobValue(data), nil
-	case document.TextValue:
+	case types.TextValue:
 		return document.NewTextValue(string(data)), nil
-	case document.BoolValue:
+	case types.BoolValue:
 		x, err := binarysort.DecodeBool(data)
 		if err != nil {
 			return nil, err
 		}
 		return document.NewBoolValue(x), nil
-	case document.IntegerValue:
+	case types.IntegerValue:
 		x, _ := binary.Varint(data)
 		return document.NewIntegerValue(x), nil
-	case document.DoubleValue:
+	case types.DoubleValue:
 		x, err := binarysort.DecodeFloat64(data)
 		if err != nil {
 			return nil, err
 		}
 		return document.NewDoubleValue(x), nil
-	case document.NullValue:
+	case types.NullValue:
 		return document.NewNullValue(), nil
 	}
 

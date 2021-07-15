@@ -9,6 +9,7 @@ import (
 	"github.com/genjidb/genji/document"
 	"github.com/genjidb/genji/engine"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 var (
@@ -35,13 +36,13 @@ type Index struct {
 func NewIndex(tx engine.Transaction, idxName string, opts *IndexInfo) *Index {
 	if opts == nil {
 		opts = &IndexInfo{
-			Types: []document.ValueType{document.AnyType},
+			Types: []types.ValueType{types.AnyType},
 		}
 	}
 
 	// if no types are provided, it implies that it's an index for single untyped values
 	if opts.Types == nil {
-		opts.Types = []document.ValueType{document.AnyType}
+		opts.Types = []types.ValueType{types.AnyType}
 	}
 
 	return &Index{
@@ -54,7 +55,7 @@ func NewIndex(tx engine.Transaction, idxName string, opts *IndexInfo) *Index {
 // the value is encoded as is, without any type information. Otherwise, the
 // type is prepended to the value.
 type indexValueEncoder struct {
-	typ document.ValueType
+	typ types.ValueType
 	w   io.Writer
 }
 
@@ -387,7 +388,7 @@ func (idx *Index) Truncate() error {
 // multiple values being indexed into a byte array, keeping the
 // order of the original values.
 //
-// The values are marshalled and separated with a document.ArrayValueDelim,
+// The values are marshalled and separated with a types.ArrayValueDelim,
 // *without* a trailing document.ArrayEnd, which enables to handle cases
 // where only some of the values are being provided and still perform lookups
 // (like index_foo_a_b_c and providing only a and b).

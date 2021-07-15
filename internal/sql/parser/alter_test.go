@@ -9,6 +9,7 @@ import (
 	"github.com/genjidb/genji/internal/query/statement"
 	"github.com/genjidb/genji/internal/sql/parser"
 	"github.com/genjidb/genji/internal/testutil"
+	"github.com/genjidb/genji/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -52,7 +53,7 @@ func TestParserAlterTableAddField(t *testing.T) {
 		{"With type", "ALTER TABLE foo ADD FIELD bar integer", statement.AlterTableAddField{TableName: "foo",
 			Constraint: database.FieldConstraint{
 				Path: document.Path(testutil.ParsePath(t, "bar")),
-				Type: document.IntegerValue,
+				Type: types.IntegerValue,
 			},
 		}, false},
 		{"With not null", "ALTER TABLE foo ADD FIELD bar NOT NULL", statement.AlterTableAddField{TableName: "foo",
@@ -65,7 +66,7 @@ func TestParserAlterTableAddField(t *testing.T) {
 		{"With multiple constraints", "ALTER TABLE foo ADD FIELD bar integer NOT NULL DEFAULT 0", statement.AlterTableAddField{TableName: "foo",
 			Constraint: database.FieldConstraint{
 				Path:         document.Path(testutil.ParsePath(t, "bar")),
-				Type:         document.IntegerValue,
+				Type:         types.IntegerValue,
 				IsNotNull:    true,
 				DefaultValue: expr.Constraint(expr.LiteralValue{Value: document.NewIntegerValue(0)}),
 			},

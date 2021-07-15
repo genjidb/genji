@@ -10,6 +10,7 @@ import (
 	"github.com/genjidb/genji/internal/environment"
 	"github.com/genjidb/genji/internal/expr"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 type Costable interface {
@@ -157,7 +158,7 @@ func (r ValueRange) Clone() ValueRange {
 }
 
 type encodedValueRange struct {
-	pkType      document.ValueType
+	pkType      types.ValueType
 	path        document.Path
 	constraints database.FieldConstraints
 
@@ -166,19 +167,19 @@ type encodedValueRange struct {
 	Exact     bool
 
 	EncodedMin, EncodedMax []byte
-	RangeType              document.ValueType
+	RangeType              types.ValueType
 }
 
 func (r *encodedValueRange) Convert(v document.Value, isMin bool) (document.Value, bool, error) {
 	// ensure the operand satisfies all the constraints, index can work only on exact types.
 	// if a number is encountered, try to convert it to the right type if and only if the conversion
 	// is lossless.
-	v, err := r.constraints.ConvertValueAtPath(r.path, v, func(v document.Value, path document.Path, targetType document.ValueType) (document.Value, error) {
-		if v.Type() == document.IntegerValue && targetType == document.DoubleValue {
+	v, err := r.constraints.ConvertValueAtPath(r.path, v, func(v document.Value, path document.Path, targetType types.ValueType) (document.Value, error) {
+		if v.Type() == types.IntegerValue && targetType == types.DoubleValue {
 			return document.CastAsDouble(v)
 		}
 
-		if v.Type() == document.DoubleValue && targetType == document.IntegerValue {
+		if v.Type() == types.DoubleValue && targetType == types.IntegerValue {
 			f := v.V().(float64)
 			if float64(int64(f)) == f {
 				return document.CastAsInteger(v)
@@ -537,19 +538,19 @@ type encodedIndexRange struct {
 	IndexArity int
 
 	EncodedMin, EncodedMax []byte
-	RangeTypes             []document.ValueType
+	RangeTypes             []types.ValueType
 }
 
-func (r *encodedIndexRange) Convert(v document.Value, p document.Path, t document.ValueType, isMin bool) (document.Value, bool, error) {
+func (r *encodedIndexRange) Convert(v document.Value, p document.Path, t types.ValueType, isMin bool) (document.Value, bool, error) {
 	// ensure the operand satisfies all the constraints, index can work only on exact types.
 	// if a number is encountered, try to convert it to the right type if and only if the conversion
 	// is lossless.
-	v, err := r.constraints.ConvertValueAtPath(p, v, func(v document.Value, path document.Path, targetType document.ValueType) (document.Value, error) {
-		if v.Type() == document.IntegerValue && targetType == document.DoubleValue {
+	v, err := r.constraints.ConvertValueAtPath(p, v, func(v document.Value, path document.Path, targetType types.ValueType) (document.Value, error) {
+		if v.Type() == types.IntegerValue && targetType == types.DoubleValue {
 			return document.CastAsDouble(v)
 		}
 
-		if v.Type() == document.DoubleValue && targetType == document.IntegerValue {
+		if v.Type() == types.DoubleValue && targetType == types.IntegerValue {
 			f := v.V().(float64)
 			if float64(int64(f)) == f {
 				return document.CastAsInteger(v)

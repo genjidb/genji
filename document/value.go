@@ -10,6 +10,7 @@ import (
 	"github.com/buger/jsonparser"
 	"github.com/genjidb/genji/internal/binarysort"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 // ErrUnsupportedType is used to skip struct or array fields that are not supported.
@@ -22,74 +23,8 @@ func (e *ErrUnsupportedType) Error() string {
 	return stringutil.Sprintf("unsupported type %T. %s", e.Value, e.Msg)
 }
 
-// ValueType represents a value type supported by the database.
-type ValueType uint8
-
-// List of supported value types.
-// These types are separated by family so that when
-// new types are introduced we don't need to modify them.
-const (
-	// denote the absence of type
-	AnyType ValueType = 0x0
-
-	NullValue ValueType = 0x80
-
-	BoolValue ValueType = 0x81
-
-	// integer family: 0x90 to 0x9F
-	IntegerValue ValueType = 0x90
-
-	// double family: 0xA0 to 0xAF
-	DoubleValue ValueType = 0xA0
-
-	// string family: 0xC0 to 0xCF
-	TextValue ValueType = 0xC0
-
-	// blob family: 0xD0 to 0xDF
-	BlobValue ValueType = 0xD0
-
-	// array family: 0xE0 to 0xEF
-	ArrayValue ValueType = 0xE0
-
-	// document family: 0xF0 to 0xFF
-	DocumentValue ValueType = 0xF0
-)
-
-func (t ValueType) String() string {
-	switch t {
-	case NullValue:
-		return "null"
-	case BoolValue:
-		return "bool"
-	case IntegerValue:
-		return "integer"
-	case DoubleValue:
-		return "double"
-	case BlobValue:
-		return "blob"
-	case TextValue:
-		return "text"
-	case ArrayValue:
-		return "array"
-	case DocumentValue:
-		return "document"
-	}
-
-	return ""
-}
-
-// IsNumber returns true if t is either an integer of a float.
-func (t ValueType) IsNumber() bool {
-	return t == IntegerValue || t == DoubleValue
-}
-
-// IsAny returns whether this is type is Any or a real type
-func (t ValueType) IsAny() bool {
-	return t == AnyType
-}
-
 type Value interface {
-	Type() ValueType
+	Type() types.ValueType
 	V() interface{}
 	// TODO(asdine): Remove the following methods from
 	// this interface and use type inference instead.
@@ -100,7 +35,7 @@ type Value interface {
 
 // A Value stores encoded data alongside its type.
 type value struct {
-	tp ValueType
+	tp types.ValueType
 	v  interface{}
 }
 
@@ -109,14 +44,14 @@ var _ Value = &value{}
 // NewNullValue returns a Null value.
 func NewNullValue() Value {
 	return &value{
-		tp: NullValue,
+		tp: types.NullValue,
 	}
 }
 
 // NewBoolValue encodes x and returns a value.
 func NewBoolValue(x bool) Value {
 	return &value{
-		tp: BoolValue,
+		tp: types.BoolValue,
 		v:  x,
 	}
 }
@@ -125,7 +60,7 @@ func NewBoolValue(x bool) Value {
 // magnitude of x.
 func NewIntegerValue(x int64) Value {
 	return &value{
-		tp: IntegerValue,
+		tp: types.IntegerValue,
 		v:  int64(x),
 	}
 }
@@ -133,7 +68,7 @@ func NewIntegerValue(x int64) Value {
 // NewDoubleValue encodes x and returns a value.
 func NewDoubleValue(x float64) Value {
 	return &value{
-		tp: DoubleValue,
+		tp: types.DoubleValue,
 		v:  x,
 	}
 }
@@ -141,7 +76,7 @@ func NewDoubleValue(x float64) Value {
 // NewBlobValue encodes x and returns a value.
 func NewBlobValue(x []byte) Value {
 	return &value{
-		tp: BlobValue,
+		tp: types.BlobValue,
 		v:  x,
 	}
 }
@@ -149,7 +84,7 @@ func NewBlobValue(x []byte) Value {
 // NewTextValue encodes x and returns a value.
 func NewTextValue(x string) Value {
 	return &value{
-		tp: TextValue,
+		tp: types.TextValue,
 		v:  x,
 	}
 }
@@ -157,7 +92,7 @@ func NewTextValue(x string) Value {
 // NewArrayValue returns a value of type Array.
 func NewArrayValue(a Array) Value {
 	return &value{
-		tp: ArrayValue,
+		tp: types.ArrayValue,
 		v:  a,
 	}
 }
@@ -165,21 +100,21 @@ func NewArrayValue(a Array) Value {
 // NewDocumentValue returns a value of type Document.
 func NewDocumentValue(d Document) Value {
 	return &value{
-		tp: DocumentValue,
+		tp: types.DocumentValue,
 		v:  d,
 	}
 }
 
 // NewEmptyValue creates an empty value with the given type.
 // V() always returns nil.
-func NewEmptyValue(t ValueType) Value {
+func NewEmptyValue(t types.ValueType) Value {
 	return &value{
 		tp: t,
 	}
 }
 
 // NewValueWith creates a value with the given type and value.
-func NewValueWith(t ValueType, v interface{}) Value {
+func NewValueWith(t types.ValueType, v interface{}) Value {
 	return &value{
 		tp: t,
 		v:  v,
@@ -190,13 +125,13 @@ func (v *value) V() interface{} {
 	return v.v
 }
 
-func (v *value) Type() ValueType {
+func (v *value) Type() types.ValueType {
 	return v.tp
 }
 
 // IsTruthy returns whether v is not equal to the zero value of its type.
 func IsTruthy(v Value) (bool, error) {
-	if v.Type() == NullValue {
+	if v.Type() == types.NullValue {
 		return false, nil
 	}
 
@@ -208,17 +143,17 @@ func IsTruthy(v Value) (bool, error) {
 // This function doesn't perform any allocation.
 func IsZeroValue(v Value) (bool, error) {
 	switch v.Type() {
-	case BoolValue:
+	case types.BoolValue:
 		return v.V() == false, nil
-	case IntegerValue:
+	case types.IntegerValue:
 		return v.V() == int64(0), nil
-	case DoubleValue:
+	case types.DoubleValue:
 		return v.V() == float64(0), nil
-	case BlobValue:
+	case types.BlobValue:
 		return v.V() == nil, nil
-	case TextValue:
+	case types.TextValue:
 		return v.V() == "", nil
-	case ArrayValue:
+	case types.ArrayValue:
 		// The zero value of an array is an empty array.
 		// Thus, if GetByIndex(0) returns the ErrValueNotFound
 		// it means that the array is empty.
@@ -227,7 +162,7 @@ func IsZeroValue(v Value) (bool, error) {
 			return true, nil
 		}
 		return false, err
-	case DocumentValue:
+	case types.DocumentValue:
 		err := v.V().(Document).Iterate(func(_ string, _ Value) error {
 			// We return an error in the first iteration to stop it.
 			return errStop
@@ -252,13 +187,13 @@ func IsZeroValue(v Value) (bool, error) {
 // MarshalJSON implements the json.Marshaler interface.
 func (v *value) MarshalJSON() ([]byte, error) {
 	switch v.tp {
-	case NullValue:
+	case types.NullValue:
 		return []byte("null"), nil
-	case BoolValue:
+	case types.BoolValue:
 		return strconv.AppendBool(nil, v.v.(bool)), nil
-	case IntegerValue:
+	case types.IntegerValue:
 		return strconv.AppendInt(nil, v.v.(int64), 10), nil
-	case DoubleValue:
+	case types.DoubleValue:
 		f := v.v.(float64)
 		abs := math.Abs(f)
 		fmt := byte('f')
@@ -273,18 +208,18 @@ func (v *value) MarshalJSON() ([]byte, error) {
 		prec := -1
 
 		return strconv.AppendFloat(nil, v.v.(float64), fmt, prec, 64), nil
-	case TextValue:
+	case types.TextValue:
 		return []byte(strconv.Quote(v.v.(string))), nil
-	case BlobValue:
+	case types.BlobValue:
 		src := v.v.([]byte)
 		dst := make([]byte, base64.StdEncoding.EncodedLen(len(src))+2)
 		dst[0] = '"'
 		dst[len(dst)-1] = '"'
 		base64.StdEncoding.Encode(dst[1:], src)
 		return dst, nil
-	case ArrayValue:
+	case types.ArrayValue:
 		return jsonArray{v.v.(Array)}.MarshalJSON()
-	case DocumentValue:
+	case types.DocumentValue:
 		return jsonDocument{v.v.(Document)}.MarshalJSON()
 	default:
 		return nil, stringutil.Errorf("unexpected type: %d", v.tp)
@@ -294,11 +229,11 @@ func (v *value) MarshalJSON() ([]byte, error) {
 // String returns a string representation of the value. It implements the fmt.Stringer interface.
 func (v *value) String() string {
 	switch v.tp {
-	case NullValue:
+	case types.NullValue:
 		return "NULL"
-	case TextValue:
+	case types.TextValue:
 		return strconv.Quote(v.v.(string))
-	case BlobValue:
+	case types.BlobValue:
 		return stringutil.Sprintf("%v", v.v)
 	}
 
@@ -310,26 +245,26 @@ func (v *value) String() string {
 // The encoded value doesn't include type information.
 func (v *value) Append(buf []byte) ([]byte, error) {
 	switch v.tp {
-	case BlobValue:
+	case types.BlobValue:
 		return append(buf, v.v.([]byte)...), nil
-	case TextValue:
+	case types.TextValue:
 		return append(buf, v.v.(string)...), nil
-	case BoolValue:
+	case types.BoolValue:
 		return binarysort.AppendBool(buf, v.v.(bool)), nil
-	case IntegerValue:
+	case types.IntegerValue:
 		return binarysort.AppendInt64(buf, v.v.(int64)), nil
-	case DoubleValue:
+	case types.DoubleValue:
 		return binarysort.AppendFloat64(buf, v.v.(float64)), nil
-	case NullValue:
+	case types.NullValue:
 		return buf, nil
-	case ArrayValue:
+	case types.ArrayValue:
 		var buf bytes.Buffer
 		err := NewValueEncoder(&buf).appendArray(v.v.(Array))
 		if err != nil {
 			return nil, err
 		}
 		return buf.Bytes(), nil
-	case DocumentValue:
+	case types.DocumentValue:
 		var buf bytes.Buffer
 		err := NewValueEncoder(&buf).appendDocument(v.v.(Document))
 		if err != nil {
@@ -401,16 +336,16 @@ func BitwiseXor(v1, v2 Value) (res Value, err error) {
 }
 
 func calculateValues(a, b Value, operator byte) (res Value, err error) {
-	if a.Type() == NullValue || b.Type() == NullValue {
+	if a.Type() == types.NullValue || b.Type() == types.NullValue {
 		return NewNullValue(), nil
 	}
 
-	if a.Type() == BoolValue || b.Type() == BoolValue {
+	if a.Type() == types.BoolValue || b.Type() == types.BoolValue {
 		return NewNullValue(), nil
 	}
 
 	if a.Type().IsNumber() && b.Type().IsNumber() {
-		if a.Type() == DoubleValue || b.Type() == DoubleValue {
+		if a.Type() == types.DoubleValue || b.Type() == types.DoubleValue {
 			return calculateFloats(a, b, operator)
 		}
 

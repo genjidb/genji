@@ -6,6 +6,7 @@ import (
 	"github.com/genjidb/genji/document"
 	"github.com/genjidb/genji/document/encoding"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 	"github.com/vmihailenco/msgpack/v5"
 	"github.com/vmihailenco/msgpack/v5/msgpcode"
 )
@@ -111,21 +112,21 @@ func (e *Encoder) EncodeArray(a document.Array) error {
 // - float64 -> float64
 func (e *Encoder) EncodeValue(v document.Value) error {
 	switch v.Type() {
-	case document.DocumentValue:
+	case types.DocumentValue:
 		return e.EncodeDocument(v.V().(document.Document))
-	case document.ArrayValue:
+	case types.ArrayValue:
 		return e.EncodeArray(v.V().(document.Array))
-	case document.NullValue:
+	case types.NullValue:
 		return e.enc.EncodeNil()
-	case document.TextValue:
+	case types.TextValue:
 		return e.enc.EncodeString(v.V().(string))
-	case document.BlobValue:
+	case types.BlobValue:
 		return e.enc.EncodeBytes(v.V().([]byte))
-	case document.BoolValue:
+	case types.BoolValue:
 		return e.enc.EncodeBool(v.V().(bool))
-	case document.IntegerValue:
+	case types.IntegerValue:
 		return e.enc.EncodeInt(v.V().(int64))
-	case document.DoubleValue:
+	case types.DoubleValue:
 		return e.enc.EncodeFloat64(v.V().(float64))
 	}
 

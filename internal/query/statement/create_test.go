@@ -8,6 +8,7 @@ import (
 	"github.com/genjidb/genji/internal/expr"
 	"github.com/genjidb/genji/internal/sql/parser"
 	"github.com/genjidb/genji/internal/testutil"
+	"github.com/genjidb/genji/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -70,8 +71,8 @@ func TestCreateTable(t *testing.T) {
 			require.NoError(t, err)
 
 			require.Equal(t, database.FieldConstraints{
-				{Path: parsePath(t, "d"), Type: document.DoubleValue},
-				{Path: parsePath(t, "b"), Type: document.BoolValue},
+				{Path: parsePath(t, "d"), Type: types.DoubleValue},
+				{Path: parsePath(t, "b"), Type: types.BoolValue},
 			}, tb.Info.FieldConstraints)
 			require.NoError(t, err)
 		})
@@ -90,46 +91,46 @@ func TestCreateTable(t *testing.T) {
 			require.NoError(t, err)
 
 			require.Equal(t, database.FieldConstraints{
-				{Path: parsePath(t, "foo"), Type: document.DocumentValue, IsInferred: true,
+				{Path: parsePath(t, "foo"), Type: types.DocumentValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "foo.bar[1].hello"),
 						parsePath(t, "foo.a[1][2]"),
 					}},
-				{Path: parsePath(t, "foo.bar"), Type: document.ArrayValue, IsInferred: true,
+				{Path: parsePath(t, "foo.bar"), Type: types.ArrayValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "foo.bar[1].hello"),
 					}},
-				{Path: parsePath(t, "foo.bar[1]"), Type: document.DocumentValue, IsInferred: true,
+				{Path: parsePath(t, "foo.bar[1]"), Type: types.DocumentValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "foo.bar[1].hello"),
 					}},
-				{Path: parsePath(t, "foo.bar[1].hello"), Type: document.BlobValue, IsPrimaryKey: true},
-				{Path: parsePath(t, "foo.a"), Type: document.ArrayValue, IsInferred: true,
+				{Path: parsePath(t, "foo.bar[1].hello"), Type: types.BlobValue, IsPrimaryKey: true},
+				{Path: parsePath(t, "foo.a"), Type: types.ArrayValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "foo.a[1][2]"),
 					}},
-				{Path: parsePath(t, "foo.a[1]"), Type: document.ArrayValue, IsInferred: true,
+				{Path: parsePath(t, "foo.a[1]"), Type: types.ArrayValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "foo.a[1][2]"),
 					}},
-				{Path: parsePath(t, "foo.a[1][2]"), Type: document.TextValue, IsNotNull: true},
-				{Path: parsePath(t, "bar"), Type: document.ArrayValue, IsInferred: true,
+				{Path: parsePath(t, "foo.a[1][2]"), Type: types.TextValue, IsNotNull: true},
+				{Path: parsePath(t, "bar"), Type: types.ArrayValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "bar[4][0].bat"),
 					}},
-				{Path: parsePath(t, "bar[4]"), Type: document.ArrayValue, IsInferred: true,
+				{Path: parsePath(t, "bar[4]"), Type: types.ArrayValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "bar[4][0].bat"),
 					}},
-				{Path: parsePath(t, "bar[4][0]"), Type: document.DocumentValue, IsInferred: true,
+				{Path: parsePath(t, "bar[4][0]"), Type: types.DocumentValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "bar[4][0].bat"),
 					}},
-				{Path: parsePath(t, "bar[4][0].bat"), Type: document.IntegerValue},
-				{Path: parsePath(t, "b"), Type: document.BlobValue},
-				{Path: parsePath(t, "t"), Type: document.TextValue},
-				{Path: parsePath(t, "a"), Type: document.ArrayValue},
-				{Path: parsePath(t, "d"), Type: document.DocumentValue},
+				{Path: parsePath(t, "bar[4][0].bat"), Type: types.IntegerValue},
+				{Path: parsePath(t, "b"), Type: types.BlobValue},
+				{Path: parsePath(t, "t"), Type: types.TextValue},
+				{Path: parsePath(t, "a"), Type: types.ArrayValue},
+				{Path: parsePath(t, "d"), Type: types.DocumentValue},
 			}, tb.Info.FieldConstraints)
 			require.NoError(t, err)
 		})
@@ -148,49 +149,49 @@ func TestCreateTable(t *testing.T) {
 			tb, err := db.Catalog.GetTable(tx, "test2")
 			require.NoError(t, err)
 
-			require.Equal(t, database.FieldConstraints{{Path: parsePath(t, "foo"), Type: document.DocumentValue, IsInferred: true,
+			require.Equal(t, database.FieldConstraints{{Path: parsePath(t, "foo"), Type: types.DocumentValue, IsInferred: true,
 				InferredBy: []document.Path{
 					parsePath(t, "foo.bar[1].hello"),
 					parsePath(t, "foo.a[1][2]"),
 				}},
-				{Path: parsePath(t, "foo.bar"), Type: document.ArrayValue, IsInferred: true,
+				{Path: parsePath(t, "foo.bar"), Type: types.ArrayValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "foo.bar[1].hello"),
 					}},
-				{Path: parsePath(t, "foo.bar[1]"), Type: document.DocumentValue, IsInferred: true,
+				{Path: parsePath(t, "foo.bar[1]"), Type: types.DocumentValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "foo.bar[1].hello"),
 					}},
-				{Path: parsePath(t, "foo.bar[1].hello"), Type: document.BlobValue, IsPrimaryKey: true},
-				{Path: parsePath(t, "foo.a"), Type: document.ArrayValue, IsInferred: true,
+				{Path: parsePath(t, "foo.bar[1].hello"), Type: types.BlobValue, IsPrimaryKey: true},
+				{Path: parsePath(t, "foo.a"), Type: types.ArrayValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "foo.a[1][2]"),
 					}},
-				{Path: parsePath(t, "foo.a[1]"), Type: document.ArrayValue, IsInferred: true,
+				{Path: parsePath(t, "foo.a[1]"), Type: types.ArrayValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "foo.a[1][2]"),
 					}},
-				{Path: parsePath(t, "foo.a[1][2]"), Type: document.TextValue, IsNotNull: true},
-				{Path: parsePath(t, "bar"), Type: document.ArrayValue, IsInferred: true,
+				{Path: parsePath(t, "foo.a[1][2]"), Type: types.TextValue, IsNotNull: true},
+				{Path: parsePath(t, "bar"), Type: types.ArrayValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "bar[4][0].bat"),
 					}},
-				{Path: parsePath(t, "bar[4]"), Type: document.ArrayValue, IsInferred: true,
+				{Path: parsePath(t, "bar[4]"), Type: types.ArrayValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "bar[4][0].bat"),
 					}},
-				{Path: parsePath(t, "bar[4][0]"), Type: document.DocumentValue, IsInferred: true,
+				{Path: parsePath(t, "bar[4][0]"), Type: types.DocumentValue, IsInferred: true,
 					InferredBy: []document.Path{
 						parsePath(t, "bar[4][0].bat"),
 					}},
-				{Path: parsePath(t, "bar[4][0].bat"), Type: document.IntegerValue},
-				{Path: parsePath(t, "dp"), Type: document.DoubleValue},
-				{Path: parsePath(t, "r"), Type: document.DoubleValue},
-				{Path: parsePath(t, "b"), Type: document.IntegerValue},
-				{Path: parsePath(t, "m"), Type: document.IntegerValue},
-				{Path: parsePath(t, "eight"), Type: document.IntegerValue},
-				{Path: parsePath(t, "ii"), Type: document.IntegerValue},
-				{Path: parsePath(t, "c"), Type: document.TextValue},
+				{Path: parsePath(t, "bar[4][0].bat"), Type: types.IntegerValue},
+				{Path: parsePath(t, "dp"), Type: types.DoubleValue},
+				{Path: parsePath(t, "r"), Type: types.DoubleValue},
+				{Path: parsePath(t, "b"), Type: types.IntegerValue},
+				{Path: parsePath(t, "m"), Type: types.IntegerValue},
+				{Path: parsePath(t, "eight"), Type: types.IntegerValue},
+				{Path: parsePath(t, "ii"), Type: types.IntegerValue},
+				{Path: parsePath(t, "c"), Type: types.TextValue},
 			}, tb.Info.FieldConstraints)
 			require.NoError(t, err)
 		})
@@ -203,8 +204,8 @@ func TestCreateTable(t *testing.T) {
 				fails       bool
 			}{
 				{"With default, no type and integer default", "CREATE TABLE test(foo DEFAULT 10)", database.FieldConstraints{{Path: parsePath(t, "foo"), DefaultValue: expr.Constraint(testutil.IntegerValue(10))}}, false},
-				{"With default, double type and integer default", "CREATE TABLE test(foo DOUBLE DEFAULT 10)", database.FieldConstraints{{Path: parsePath(t, "foo"), Type: document.DoubleValue, DefaultValue: expr.Constraint(testutil.IntegerValue(10))}}, false},
-				{"With default, some type and compatible default", "CREATE TABLE test(foo BOOL DEFAULT 10)", database.FieldConstraints{{Path: parsePath(t, "foo"), Type: document.BoolValue, DefaultValue: expr.Constraint(testutil.IntegerValue(10))}}, false},
+				{"With default, double type and integer default", "CREATE TABLE test(foo DOUBLE DEFAULT 10)", database.FieldConstraints{{Path: parsePath(t, "foo"), Type: types.DoubleValue, DefaultValue: expr.Constraint(testutil.IntegerValue(10))}}, false},
+				{"With default, some type and compatible default", "CREATE TABLE test(foo BOOL DEFAULT 10)", database.FieldConstraints{{Path: parsePath(t, "foo"), Type: types.BoolValue, DefaultValue: expr.Constraint(testutil.IntegerValue(10))}}, false},
 				{"With default, some type and incompatible default", "CREATE TABLE test(foo BOOL DEFAULT 10.5)", nil, true},
 			}
 
@@ -245,13 +246,13 @@ func TestCreateTable(t *testing.T) {
 
 			require.Equal(t, &database.FieldConstraint{
 				Path:     parsePath(t, "a"),
-				Type:     document.IntegerValue,
+				Type:     types.IntegerValue,
 				IsUnique: true,
 			}, tb.Info.FieldConstraints[0])
 
 			require.Equal(t, &database.FieldConstraint{
 				Path:     parsePath(t, "b"),
-				Type:     document.DoubleValue,
+				Type:     types.DoubleValue,
 				IsUnique: true,
 			}, tb.Info.FieldConstraints[1])
 
@@ -262,12 +263,12 @@ func TestCreateTable(t *testing.T) {
 
 			idx, err := db.Catalog.GetIndex(tx, "test_a_idx")
 			require.NoError(t, err)
-			require.Equal(t, document.IntegerValue, idx.Info.Types[0])
+			require.Equal(t, types.IntegerValue, idx.Info.Types[0])
 			require.True(t, idx.Info.Unique)
 
 			idx, err = db.Catalog.GetIndex(tx, "test_b_idx")
 			require.NoError(t, err)
-			require.Equal(t, document.DoubleValue, idx.Info.Types[0])
+			require.Equal(t, types.DoubleValue, idx.Info.Types[0])
 			require.True(t, idx.Info.Unique)
 
 			idx, err = db.Catalog.GetIndex(tx, "test_c_idx")

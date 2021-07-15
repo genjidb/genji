@@ -7,6 +7,7 @@ import (
 	"github.com/genjidb/genji/document"
 	"github.com/genjidb/genji/internal/environment"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 // A Function is an expression that execute some arbitrary code.
@@ -135,7 +136,7 @@ func (k *PKFunc) String() string {
 // CastFunc represents the CAST expression.
 type CastFunc struct {
 	Expr   Expr
-	CastAs document.ValueType
+	CastAs types.ValueType
 }
 
 // Eval returns the primary key of the current document.
@@ -522,12 +523,12 @@ func (s *SumAggregator) Aggregate(env *environment.Environment) error {
 	if err != nil && err != document.ErrFieldNotFound {
 		return err
 	}
-	if v.Type() != document.IntegerValue && v.Type() != document.DoubleValue {
+	if v.Type() != types.IntegerValue && v.Type() != types.DoubleValue {
 		return nil
 	}
 
 	if s.SumF != nil {
-		if v.Type() == document.IntegerValue {
+		if v.Type() == types.IntegerValue {
 			*s.SumF += float64(v.V().(int64))
 		} else {
 			*s.SumF += float64(v.V().(float64))
@@ -536,7 +537,7 @@ func (s *SumAggregator) Aggregate(env *environment.Environment) error {
 		return nil
 	}
 
-	if v.Type() == document.DoubleValue {
+	if v.Type() == types.DoubleValue {
 		var sumF float64
 		if s.SumI != nil {
 			sumF = float64(*s.SumI)
@@ -632,9 +633,9 @@ func (s *AvgAggregator) Aggregate(env *environment.Environment) error {
 	}
 
 	switch v.Type() {
-	case document.IntegerValue:
+	case types.IntegerValue:
 		s.Avg += float64(v.V().(int64))
-	case document.DoubleValue:
+	case types.DoubleValue:
 		s.Avg += v.V().(float64)
 	default:
 		return nil

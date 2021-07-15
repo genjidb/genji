@@ -69,7 +69,7 @@ func TestNewFromJSON(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, document.NewIntegerValue(1000), v)
 
-		v, err = d.GetByField("b")
+		_, err = d.GetByField("b")
 		require.Equal(t, document.ErrFieldNotFound, err)
 	})
 }

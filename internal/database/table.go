@@ -10,6 +10,7 @@ import (
 	"github.com/genjidb/genji/engine"
 	errs "github.com/genjidb/genji/errors"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 // A Table represents a collection of documents.
@@ -455,7 +456,7 @@ func (t *Table) encodeValueToKey(info *TableInfo, v document.Value) ([]byte, err
 	// it no primary key type is specified,
 	// and the value to encode is an integer
 	// convert it to a double.
-	if v.Type() == document.IntegerValue {
+	if v.Type() == types.IntegerValue {
 		v, err = document.CastAsDouble(v)
 		if err != nil {
 			return nil, err

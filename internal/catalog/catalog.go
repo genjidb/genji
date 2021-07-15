@@ -10,6 +10,7 @@ import (
 	errs "github.com/genjidb/genji/errors"
 	"github.com/genjidb/genji/internal/database"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 const (
@@ -298,7 +299,7 @@ OUTER:
 			if fc.Path.IsEqual(path) {
 				// a constraint may or may not enforce a type
 				if fc.Type != 0 {
-					info.Types = append(info.Types, document.ValueType(fc.Type))
+					info.Types = append(info.Types, types.ValueType(fc.Type))
 				}
 
 				continue OUTER
@@ -306,7 +307,7 @@ OUTER:
 		}
 
 		// no type was inferred for that path, add it to the index as untyped
-		info.Types = append(info.Types, document.ValueType(0))
+		info.Types = append(info.Types, types.ValueType(0))
 	}
 
 	if info.StoreName == nil {

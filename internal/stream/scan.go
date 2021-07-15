@@ -10,6 +10,7 @@ import (
 	"github.com/genjidb/genji/internal/environment"
 	"github.com/genjidb/genji/internal/expr"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 type DocumentsOperator struct {
@@ -74,7 +75,7 @@ func (op *ExprsOperator) Iterate(in *environment.Environment, fn func(out *envir
 		if err != nil {
 			return err
 		}
-		if v.Type() != document.DocumentValue {
+		if v.Type() != types.DocumentValue {
 			return ErrInvalidResult
 		}
 

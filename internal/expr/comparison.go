@@ -5,6 +5,7 @@ import (
 	"github.com/genjidb/genji/internal/environment"
 	"github.com/genjidb/genji/internal/sql/scanner"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 // A cmpOp is a comparison operator.
@@ -22,7 +23,7 @@ func newCmpOp(a, b Expr, t scanner.Token) *cmpOp {
 // Comparing with NULL always evaluates to NULL.
 func (op *cmpOp) Eval(env *environment.Environment) (document.Value, error) {
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
-		if a.Type() == document.NullValue || b.Type() == document.NullValue {
+		if a.Type() == types.NullValue || b.Type() == types.NullValue {
 			return NullLiteral, nil
 		}
 
@@ -104,7 +105,7 @@ func (op *BetweenOperator) Eval(env *environment.Environment) (document.Value, e
 	}
 
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
-		if a.Type() == document.NullValue || b.Type() == document.NullValue {
+		if a.Type() == types.NullValue || b.Type() == types.NullValue {
 			return NullLiteral, nil
 		}
 
@@ -148,11 +149,11 @@ func In(a, b Expr) Expr {
 
 func (op *InOperator) Eval(env *environment.Environment) (document.Value, error) {
 	return op.simpleOperator.eval(env, func(a, b document.Value) (document.Value, error) {
-		if a.Type() == document.NullValue || b.Type() == document.NullValue {
+		if a.Type() == types.NullValue || b.Type() == types.NullValue {
 			return NullLiteral, nil
 		}
 
-		if b.Type() != document.ArrayValue {
+		if b.Type() != types.ArrayValue {
 			return FalseLiteral, nil
 		}
 

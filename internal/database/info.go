@@ -6,6 +6,7 @@ import (
 
 	"github.com/genjidb/genji/document"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 // TableInfo contains information about a table.
@@ -86,7 +87,7 @@ type IndexInfo struct {
 	Unique bool
 
 	// If set, the index is typed and only accepts values of those types.
-	Types []document.ValueType
+	Types []types.ValueType
 
 	// If set, this index has been created from a table constraint
 	// i.e CREATE TABLE tbl(a INT UNIQUE)
@@ -158,7 +159,7 @@ func (i IndexInfo) Clone() *IndexInfo {
 		c.Paths[i] = p.Clone()
 	}
 
-	c.Types = make([]document.ValueType, len(i.Types))
+	c.Types = make([]types.ValueType, len(i.Types))
 	copy(c.Types, i.Types)
 
 	return &c

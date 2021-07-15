@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/buger/jsonparser"
+	"github.com/genjidb/genji/types"
 )
 
 // ErrFieldNotFound must be returned by Document implementations, when calling the GetByField method and
@@ -175,7 +176,7 @@ func (fb *FieldBuffer) setFieldValue(field string, reqValue Value) error {
 // setValueAtPath deep replaces or creates a field at the given path
 func setValueAtPath(v Value, p Path, newValue Value) (Value, error) {
 	switch v.Type() {
-	case DocumentValue:
+	case types.DocumentValue:
 		var buf FieldBuffer
 		err := buf.ScanDocument(v.V().(Document))
 		if err != nil {
@@ -199,7 +200,7 @@ func setValueAtPath(v Value, p Path, newValue Value) (Value, error) {
 
 		err = buf.setFieldValue(p[0].FieldName, va)
 		return NewDocumentValue(&buf), err
-	case ArrayValue:
+	case types.ArrayValue:
 		var vb ValueBuffer
 		err := vb.ScanArray(v.V().(Array))
 		if err != nil {
@@ -282,7 +283,7 @@ func (fb *FieldBuffer) Delete(path Path) error {
 		return err
 	}
 	switch v.Type() {
-	case DocumentValue:
+	case types.DocumentValue:
 		subBuf, ok := v.V().(*FieldBuffer)
 		if !ok {
 			return errors.New("Delete doesn't support non buffered document")
@@ -296,7 +297,7 @@ func (fb *FieldBuffer) Delete(path Path) error {
 		}
 
 		return ErrFieldNotFound
-	case ArrayValue:
+	case types.ArrayValue:
 		subBuf, ok := v.V().(*ValueBuffer)
 		if !ok {
 			return errors.New("Delete doesn't support non buffered array")
@@ -336,7 +337,7 @@ func (fb *FieldBuffer) Copy(d Document) error {
 
 	for i, f := range fb.fields {
 		switch f.Value.Type() {
-		case DocumentValue:
+		case types.DocumentValue:
 			var buf FieldBuffer
 			err = buf.Copy(f.Value.V().(Document))
 			if err != nil {
@@ -344,7 +345,7 @@ func (fb *FieldBuffer) Copy(d Document) error {
 			}
 
 			fb.fields[i].Value = NewDocumentValue(&buf)
-		case ArrayValue:
+		case types.ArrayValue:
 			var buf ValueBuffer
 			err = buf.Copy(f.Value.V().(Array))
 			if err != nil {
@@ -381,7 +382,7 @@ func (fb *FieldBuffer) Apply(fn func(p Path, v Value) (Value, error)) error {
 		fb.fields[i].Value = f.Value
 
 		switch f.Value.Type() {
-		case DocumentValue:
+		case types.DocumentValue:
 			buf, ok := f.Value.V().(*FieldBuffer)
 			if !ok {
 				buf = NewFieldBuffer()
@@ -398,7 +399,7 @@ func (fb *FieldBuffer) Apply(fn func(p Path, v Value) (Value, error)) error {
 				return err
 			}
 			fb.fields[i].Value = NewDocumentValue(buf)
-		case ArrayValue:
+		case types.ArrayValue:
 			buf, ok := f.Value.V().(*ValueBuffer)
 			if !ok {
 				buf = NewValueBuffer()
@@ -567,9 +568,9 @@ func (p Path) Clone() Path {
 
 func (p Path) getValueFromValue(v Value) (Value, error) {
 	switch v.Type() {
-	case DocumentValue:
+	case types.DocumentValue:
 		return p.GetValueFromDocument(v.V().(Document))
-	case ArrayValue:
+	case types.ArrayValue:
 		return p.GetValueFromArray(v.V().(Array))
 	}
 

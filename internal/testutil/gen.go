@@ -8,6 +8,7 @@ import (
 	"github.com/genjidb/genji/document"
 	"github.com/genjidb/genji/internal/environment"
 	"github.com/genjidb/genji/internal/sql/parser"
+	"github.com/genjidb/genji/types"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/require"
 )
@@ -48,9 +49,9 @@ type val struct {
 func transformV(v document.Value) val {
 	var vi interface{}
 
-	if v.Type() == document.DocumentValue {
+	if v.Type() == types.DocumentValue {
 		vi = transformDoc(v.V().(document.Document))
-	} else if v.Type() == document.ArrayValue {
+	} else if v.Type() == types.ArrayValue {
 		vi = transformArray(v.V().(document.Array))
 	} else {
 		vi = v.String()

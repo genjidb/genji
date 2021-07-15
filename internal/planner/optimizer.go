@@ -8,6 +8,7 @@ import (
 	"github.com/genjidb/genji/internal/sql/scanner"
 	"github.com/genjidb/genji/internal/stream"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 var optimizerRules = []func(s *stream.Stream, catalog database.Catalog) (*stream.Stream, error){
@@ -262,7 +263,7 @@ func RemoveUnnecessaryFilterNodesRule(s *stream.Stream, _ database.Catalog) (*st
 					// IN operator with empty array
 					// ex: WHERE a IN []
 					lv, ok := t.RightHand().(expr.LiteralValue)
-					if ok && lv.Value.Type() == document.ArrayValue {
+					if ok && lv.Value.Type() == types.ArrayValue {
 						l, err := document.ArrayLength(lv.Value.V().(document.Array))
 						if err != nil {
 							return nil, err

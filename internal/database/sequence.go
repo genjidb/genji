@@ -7,6 +7,7 @@ import (
 	"github.com/genjidb/genji/document"
 	errs "github.com/genjidb/genji/errors"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 const (
@@ -23,7 +24,7 @@ var sequenceTableInfo = &TableInfo{
 					FieldName: "name",
 				},
 			},
-			Type:         document.TextValue,
+			Type:         types.TextValue,
 			IsPrimaryKey: true,
 		},
 		{
@@ -32,7 +33,7 @@ var sequenceTableInfo = &TableInfo{
 					FieldName: "seq",
 				},
 			},
-			Type: document.IntegerValue,
+			Type: types.IntegerValue,
 		},
 	},
 }

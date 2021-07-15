@@ -8,6 +8,7 @@ import (
 	"github.com/genjidb/genji/internal/expr"
 	"github.com/genjidb/genji/internal/sql/scanner"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 type dummyOperator struct {
@@ -365,33 +366,33 @@ func (p *Parser) parseParam() (expr.Expr, error) {
 	}
 }
 
-func (p *Parser) parseType() (document.ValueType, error) {
+func (p *Parser) parseType() (types.ValueType, error) {
 	tok, pos, lit := p.ScanIgnoreWhitespace()
 	switch tok {
 	case scanner.TYPEARRAY:
-		return document.ArrayValue, nil
+		return types.ArrayValue, nil
 	case scanner.TYPEBLOB:
-		return document.BlobValue, nil
+		return types.BlobValue, nil
 	case scanner.TYPEBOOL:
-		return document.BoolValue, nil
+		return types.BoolValue, nil
 	case scanner.TYPEBYTES:
-		return document.BlobValue, nil
+		return types.BlobValue, nil
 	case scanner.TYPEDOCUMENT:
-		return document.DocumentValue, nil
+		return types.DocumentValue, nil
 	case scanner.TYPEREAL:
-		return document.DoubleValue, nil
+		return types.DoubleValue, nil
 	case scanner.TYPEDOUBLE:
 		tok, _, _ := p.ScanIgnoreWhitespace()
 		if tok == scanner.PRECISION {
-			return document.DoubleValue, nil
+			return types.DoubleValue, nil
 		}
 		p.Unscan()
-		return document.DoubleValue, nil
+		return types.DoubleValue, nil
 	case scanner.TYPEINTEGER, scanner.TYPEINT, scanner.TYPEINT2, scanner.TYPEINT8, scanner.TYPETINYINT,
 		scanner.TYPEBIGINT, scanner.TYPEMEDIUMINT, scanner.TYPESMALLINT:
-		return document.IntegerValue, nil
+		return types.IntegerValue, nil
 	case scanner.TYPETEXT:
-		return document.TextValue, nil
+		return types.TextValue, nil
 	case scanner.TYPEVARCHAR, scanner.TYPECHARACTER:
 		if tok, pos, lit := p.ScanIgnoreWhitespace(); tok != scanner.LPAREN {
 			return 0, newParseError(scanner.Tokstr(tok, lit), []string{"("}, pos)
@@ -406,7 +407,7 @@ func (p *Parser) parseType() (document.ValueType, error) {
 			return 0, newParseError(scanner.Tokstr(tok, lit), []string{")"}, pos)
 		}
 
-		return document.TextValue, nil
+		return types.TextValue, nil
 	}
 
 	return 0, newParseError(scanner.Tokstr(tok, lit), []string{"type"}, pos)

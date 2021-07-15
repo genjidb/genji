@@ -10,6 +10,7 @@ import (
 	"github.com/genjidb/genji/internal/query/statement"
 	"github.com/genjidb/genji/internal/sql/parser"
 	"github.com/genjidb/genji/internal/stringutil"
+	"github.com/genjidb/genji/types"
 )
 
 func relationToDocument(r Relation) document.Document {
@@ -213,7 +214,7 @@ func NewCatalogTable(tx *database.Transaction, catalog *Catalog) *CatalogTable {
 							FieldName: "name",
 						},
 					},
-					Type:         document.TextValue,
+					Type:         types.TextValue,
 					IsPrimaryKey: true,
 				},
 				{
@@ -222,7 +223,7 @@ func NewCatalogTable(tx *database.Transaction, catalog *Catalog) *CatalogTable {
 							FieldName: "type",
 						},
 					},
-					Type: document.TextValue,
+					Type: types.TextValue,
 				},
 				{
 					Path: document.Path{
@@ -230,7 +231,7 @@ func NewCatalogTable(tx *database.Transaction, catalog *Catalog) *CatalogTable {
 							FieldName: "table_name",
 						},
 					},
-					Type: document.TextValue,
+					Type: types.TextValue,
 				},
 				{
 					Path: document.Path{
@@ -238,7 +239,7 @@ func NewCatalogTable(tx *database.Transaction, catalog *Catalog) *CatalogTable {
 							FieldName: "sql",
 						},
 					},
-					Type: document.TextValue,
+					Type: types.TextValue,
 				},
 				{
 					Path: document.Path{
@@ -246,7 +247,7 @@ func NewCatalogTable(tx *database.Transaction, catalog *Catalog) *CatalogTable {
 							FieldName: "store_name",
 						},
 					},
-					Type: document.BlobValue,
+					Type: types.BlobValue,
 				},
 			},
 		},

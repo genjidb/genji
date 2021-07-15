@@ -17,6 +17,7 @@ import (
 	"github.com/genjidb/genji/internal/expr"
 	"github.com/genjidb/genji/internal/query/statement"
 	"github.com/genjidb/genji/internal/testutil"
+	"github.com/genjidb/genji/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -251,7 +252,7 @@ func TestTableInsert(t *testing.T) {
 
 		err := db.Catalog.CreateTable(tx, "test", &database.TableInfo{
 			FieldConstraints: []*database.FieldConstraint{
-				{Path: testutil.ParseDocumentPath(t, "foo.a[1]"), Type: document.IntegerValue, IsPrimaryKey: true},
+				{Path: testutil.ParseDocumentPath(t, "foo.a[1]"), Type: types.IntegerValue, IsPrimaryKey: true},
 			},
 		})
 		require.NoError(t, err)
@@ -283,8 +284,8 @@ func TestTableInsert(t *testing.T) {
 		tb := createTable(t, tx, db.Catalog, database.TableInfo{
 			TableName: "test",
 			FieldConstraints: []*database.FieldConstraint{
-				{Path: testutil.ParseDocumentPath(t, "foo"), Type: document.ArrayValue},
-				{Path: testutil.ParseDocumentPath(t, "foo[0]"), Type: document.IntegerValue},
+				{Path: testutil.ParseDocumentPath(t, "foo"), Type: types.ArrayValue},
+				{Path: testutil.ParseDocumentPath(t, "foo[0]"), Type: types.IntegerValue},
 			},
 		})
 
@@ -310,7 +311,7 @@ func TestTableInsert(t *testing.T) {
 
 		err := db.Catalog.CreateTable(tx, "test", &database.TableInfo{
 			FieldConstraints: []*database.FieldConstraint{
-				{Path: testutil.ParseDocumentPath(t, "foo"), Type: document.IntegerValue, IsPrimaryKey: true},
+				{Path: testutil.ParseDocumentPath(t, "foo"), Type: types.IntegerValue, IsPrimaryKey: true},
 			},
 		})
 		require.NoError(t, err)
@@ -387,8 +388,8 @@ func TestTableInsert(t *testing.T) {
 		tb := createTable(t, tx, db.Catalog, database.TableInfo{
 			TableName: "test",
 			FieldConstraints: []*database.FieldConstraint{
-				{Path: testutil.ParseDocumentPath(t, "foo"), Type: document.DocumentValue, IsInferred: true, InferredBy: []document.Path{testutil.ParseDocumentPath(t, "foo.bar")}},
-				{Path: testutil.ParseDocumentPath(t, "foo.bar"), Type: document.IntegerValue, IsInferred: true, InferredBy: []document.Path{testutil.ParseDocumentPath(t, "foo")}},
+				{Path: testutil.ParseDocumentPath(t, "foo"), Type: types.DocumentValue, IsInferred: true, InferredBy: []document.Path{testutil.ParseDocumentPath(t, "foo.bar")}},
+				{Path: testutil.ParseDocumentPath(t, "foo.bar"), Type: types.IntegerValue, IsInferred: true, InferredBy: []document.Path{testutil.ParseDocumentPath(t, "foo")}},
 			},
 		})
 
@@ -429,7 +430,7 @@ func TestTableInsert(t *testing.T) {
 
 		err := db.Catalog.CreateTable(tx, "test", &database.TableInfo{
 			FieldConstraints: []*database.FieldConstraint{
-				{Path: testutil.ParseDocumentPath(t, "foo"), Type: document.DoubleValue},
+				{Path: testutil.ParseDocumentPath(t, "foo"), Type: types.DoubleValue},
 			},
 		})
 		require.NoError(t, err)
@@ -460,7 +461,7 @@ func TestTableInsert(t *testing.T) {
 		tb2 := createTable(t, tx, db.Catalog, database.TableInfo{
 			TableName: "test2",
 			FieldConstraints: []*database.FieldConstraint{
-				{Path: testutil.ParseDocumentPath(t, "foo"), Type: document.IntegerValue, IsNotNull: true},
+				{Path: testutil.ParseDocumentPath(t, "foo"), Type: types.IntegerValue, IsNotNull: true},
 			},
 		})
 
@@ -511,7 +512,7 @@ func TestTableInsert(t *testing.T) {
 		tb2 := createTable(t, tx, db.Catalog, database.TableInfo{
 			TableName: "test2",
 			FieldConstraints: []*database.FieldConstraint{
-				{Path: testutil.ParseDocumentPath(t, "foo"), Type: document.IntegerValue, IsNotNull: true, DefaultValue: expr.Constraint(testutil.IntegerValue(42))},
+				{Path: testutil.ParseDocumentPath(t, "foo"), Type: types.IntegerValue, IsNotNull: true, DefaultValue: expr.Constraint(testutil.IntegerValue(42))},
 			},
 		})
 
