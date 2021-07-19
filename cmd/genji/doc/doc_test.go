@@ -2,6 +2,7 @@ package doc_test
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/genjidb/genji/cmd/genji/doc"
@@ -15,24 +16,32 @@ func TestFunctions(t *testing.T) {
 	for pkgname, pkg := range packages {
 		for fname, def := range pkg {
 			if pkgname == "" {
-				t.Run(fmt.Sprintf("%s has all its arguments mentioned", fname), func(t *testing.T) {
+				t.Run(fmt.Sprintf("%s is documented and has all its arguments mentioned", fname), func(t *testing.T) {
 					str, err := doc.DocString(fname)
 					require.NoError(t, err)
 					for i := 0; i < def.Arity(); i++ {
-						require.Contains(t, str, fmt.Sprintf("arg%d", i+1))
+						require.Contains(t, trimDocPromt(str), fmt.Sprintf("arg%d", i+1))
 					}
 				})
 			} else {
-				t.Run(fmt.Sprintf("%s.%s has all its arguments mentioned", pkgname, fname), func(t *testing.T) {
+				t.Run(fmt.Sprintf("%s.%s is documented and has all its arguments mentioned", pkgname, fname), func(t *testing.T) {
 					str, err := doc.DocString(fmt.Sprintf("%s.%s", pkgname, fname))
 					require.NoError(t, err)
 					for i := 0; i < def.Arity(); i++ {
-						require.Contains(t, str, fmt.Sprintf("arg%d", i+1))
+						require.Contains(t, trimDocPromt(str), fmt.Sprintf("arg%d", i+1))
 					}
 				})
 			}
 		}
 	}
+}
+
+// trimDocPrompt returns the description part of the doc string, ignoring the promt.
+func trimDocPromt(str string) string {
+	// Matches the doc description, ignoring the "package.funcname:" part.
+	r := regexp.MustCompile("[^:]+:(.*)")
+	subs := r.FindStringSubmatch(str)
+	return subs[1]
 }
 
 func TestTokens(t *testing.T) {
