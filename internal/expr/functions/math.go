@@ -16,6 +16,11 @@ var mathFunctions = Definitions{
 	"floor": floor,
 	"abs":   abs,
 	"acos":  acos,
+	"acosh": acosh,
+	"asin":  asin,
+	"asinh": asinh,
+	"atan":  atan,
+	"atan2": atan2,
 }
 
 var floor = &ScalarDefinition{
@@ -80,5 +85,119 @@ var acos = &ScalarDefinition{
 		default:
 			return document.Value{}, stringutil.Errorf("acos(arg1) expects arg1 to be a number within [-1, 1]")
 		}
+	},
+}
+
+var acosh = &ScalarDefinition{
+	name:  "acosh",
+	arity: 1,
+	callFn: func(args ...document.Value) (document.Value, error) {
+		switch args[0].Type {
+		case document.NullValue:
+			return document.NewNullValue(), nil
+		case document.IntegerValue:
+			v := args[0].V.(int64)
+			if v < 1 {
+				return document.Value{}, stringutil.Errorf("out of range, acosh(arg1) expects arg1 >= 1")
+			}
+			return document.NewDoubleValue(math.Acosh(float64(v))), nil
+		case document.DoubleValue:
+			v := args[0].V.(float64)
+			if v < 1.0 {
+				return document.Value{}, stringutil.Errorf("out of range, acosh(arg1) expects arg1 >= 1")
+			}
+			return document.NewDoubleValue(math.Acosh(v)), nil
+		default:
+			return document.Value{}, stringutil.Errorf("acosh(arg1) expects arg1 to be a number >= 1")
+		}
+	},
+}
+
+var asin = &ScalarDefinition{
+	name:  "asin",
+	arity: 1,
+	callFn: func(args ...document.Value) (document.Value, error) {
+		switch args[0].Type {
+		case document.NullValue:
+			return document.NewNullValue(), nil
+		case document.IntegerValue:
+			v := args[0].V.(int64)
+			if v > 1 || v < -1 {
+				return document.Value{}, stringutil.Errorf("out of range, asin(arg1) expects arg1 to be within [-1, 1]")
+			}
+			return document.NewDoubleValue(math.Asin(float64(v))), nil
+		case document.DoubleValue:
+			v := args[0].V.(float64)
+			if v > 1.0 || v < -1.0 {
+				return document.Value{}, stringutil.Errorf("out of range, asin(arg1) expects arg1 to be within [-1, 1]")
+			}
+			return document.NewDoubleValue(math.Asin(v)), nil
+		default:
+			return document.Value{}, stringutil.Errorf("asin(arg1) expects arg1 to be a number within [-1, 1]")
+		}
+	},
+}
+
+var asinh = &ScalarDefinition{
+	name:  "asinh",
+	arity: 1,
+	callFn: func(args ...document.Value) (document.Value, error) {
+		switch args[0].Type {
+		case document.NullValue:
+			return document.NewNullValue(), nil
+		case document.IntegerValue:
+			v := args[0].V.(int64)
+			return document.NewDoubleValue(math.Asinh(float64(v))), nil
+		case document.DoubleValue:
+			v := args[0].V.(float64)
+			return document.NewDoubleValue(math.Asinh(v)), nil
+		default:
+			return document.Value{}, stringutil.Errorf("asinh(arg1) expects arg1 to be a number")
+		}
+	},
+}
+
+var atan = &ScalarDefinition{
+	name:  "atan",
+	arity: 1,
+	callFn: func(args ...document.Value) (document.Value, error) {
+		switch args[0].Type {
+		case document.NullValue:
+			return document.NewNullValue(), nil
+		case document.IntegerValue:
+			v := args[0].V.(int64)
+			return document.NewDoubleValue(math.Atan(float64(v))), nil
+		case document.DoubleValue:
+			v := args[0].V.(float64)
+			return document.NewDoubleValue(math.Atan(v)), nil
+		default:
+			return document.Value{}, stringutil.Errorf("atan(arg1) expects arg1 to be a number")
+		}
+	},
+}
+
+var atan2 = &ScalarDefinition{
+	name:  "atan2",
+	arity: 2,
+	callFn: func(args ...document.Value) (document.Value, error) {
+		if args[0].Type == document.NullValue || args[1].Type == document.NullValue {
+			return document.NewNullValue(), nil
+		}
+		if !args[0].Type.IsNumber() || !args[1].Type.IsNumber() {
+			return document.Value{}, stringutil.Errorf("atan2(arg1, arg2) expects arg1 and arg2 to be numbers")
+		}
+
+		var a, b float64
+		if args[0].Type == document.IntegerValue {
+			a = float64(args[0].V.(int64))
+		} else {
+			a = args[0].V.(float64)
+		}
+		if args[1].Type == document.IntegerValue {
+			b = float64(args[1].V.(int64))
+		} else {
+			b = args[1].V.(float64)
+		}
+		return document.NewDoubleValue(math.Atan2(a, b)), nil
 	},
 }
